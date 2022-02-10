@@ -6,8 +6,23 @@
 //
 
 import UIKit
+// UserDefaults sample
+struct City: Codable {
+    let name: String
+    let latitude: Double
+    let longitude: Double
+}
 
 class MainViewController: UIViewController {
+    // UserDefaults sample
+    var cities = [
+        City(name: "서울특별시", latitude: 37.5478, longitude: 126.941893),
+        City(name: "마포구", latitude: 37.5635, longitude: 126.9084),
+        City(name: "천안시", latitude: 36.8151, longitude: 127.1137),
+        City(name: "로스엔젤레스", latitude: 34.0533, longitude: -118.2423),
+        City(name: "파리", latitude: 48.8571, longitude: 2.3529),
+        City(name: "퀘벡", latitude: 53.2915896, longitude: -71.5164244)
+    ]
     
     // MARK: - Properties
     
@@ -39,12 +54,44 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
+        // UserDefaults sample
+//        // 저장
+//        UserDefaults.standard.set(try? PropertyListEncoder().encode(self.cities), forKey: "cities")
+//
+//        // 불러오기
+//        guard let data = UserDefaults.standard.value(forKey: "cities") as? Data,
+//                  let cities2 = try? PropertyListDecoder().decode([City].self, from: data) else { return }
+//        print(cities2)
+//
+//        // 삭제
+//        cities.removeAll()
+//        UserDefaults.standard.set(try? PropertyListEncoder().encode(self.cities), forKey: "cities")
+//        guard let data = UserDefaults.standard.value(forKey: "cities") as? Data,
+//              let cities2 = try? PropertyListDecoder().decode([City].self, from: data) else { return }
+//        print(cities2)
+        
+        // test
+        let currentWeatherManager = CurrentWeatherManager()
+        currentWeatherManager.fetchCurrentWeather(latitude: 37.5635684, longitude: 126.9084249) { [weak self] currentWeather in
+            DispatchQueue.main.async {
+                print(currentWeather)
+                let weather = Weather(cityName: "마포구", currentWeather: currentWeather)
+                
+                let vc = WeatherViewController(weather: weather)
+                self?.weatherViewControllers.append(vc)
+                
+                self?.pageControl.numberOfPages = self?.weatherViewControllers.count ?? 1
+                
+                guard let vc = self?.weatherViewControllers[0] else { return }
+                self?.pageViewController.setViewControllers([vc], direction: .forward, animated: true, completion: nil)
+            }
+        }
     }
     
     // MARK: - Helpers
     
     private func configureUI() {
-        view.backgroundColor = .orange
+        view.backgroundColor = .blue
         
         navigationController?.isNavigationBarHidden = true
         navigationController?.isToolbarHidden = false
@@ -54,31 +101,14 @@ class MainViewController: UIViewController {
         
         toolbarItems = [UIBarButtonItem(customView: pageControl)]
         
-        let firstVC: WeatherViewController = {
-            let vc = WeatherViewController(color: .red)
-            return vc
-        }()
-        weatherViewControllers.append(firstVC)
-        let secondVC: WeatherViewController = {
-            let vc = WeatherViewController(color: .green)
-            return vc
-        }()
-        weatherViewControllers.append(secondVC)
-        let thirdVC: WeatherViewController = {
-            let vc = WeatherViewController(color: .purple)
-            return vc
-        }()
-        weatherViewControllers.append(thirdVC)
-        
-        pageControl.numberOfPages = weatherViewControllers.count
-        
-        pageViewController.setViewControllers([weatherViewControllers[2]], direction: .forward, animated: true, completion: nil)
-        pageViewController.setViewControllers([weatherViewControllers[1]], direction: .forward, animated: true, completion: nil)
-        pageViewController.setViewControllers([weatherViewControllers[0]], direction: .forward, animated: true, completion: nil)
-        
         addChild(pageViewController)
         view.addSubview(pageViewController.view)
-        pageViewController.view.frame = view.frame
+        NSLayoutConstraint.activate([
+            pageViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
+            pageViewController.view.topAnchor.constraint(equalTo: view.topAnchor, constant: 30),
+            pageViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
+            pageViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
+        ])
     }
     
     // MARK: - Actions

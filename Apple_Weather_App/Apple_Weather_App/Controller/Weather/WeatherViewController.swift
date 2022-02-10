@@ -8,15 +8,21 @@
 import UIKit
 
 private let currentWeatherCell = "CurrentWeatherCell"
+private let hourlyForecastCell = "HourlyForecastCell"
 
 class WeatherViewController: UIViewController {
+    
+    // MARK: - Properties
+    
+    var weather: Weather
     
     private lazy var collectionView: UICollectionView = {
         let layout = createLayout()
         let collectionView = UICollectionView(frame: CGRect(x: 0, y: 0, width: 0, height: 0), collectionViewLayout: layout)
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .clear
         collectionView.showsVerticalScrollIndicator = false
         collectionView.register(CurrentWeatherCell.self, forCellWithReuseIdentifier: currentWeatherCell)
+        collectionView.register(HourlyForecastCell.self, forCellWithReuseIdentifier: hourlyForecastCell)
         collectionView.dataSource = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
@@ -24,9 +30,9 @@ class WeatherViewController: UIViewController {
     
     // MARK: - Lifecycle
     
-    init(color: UIColor) {
+    init(weather: Weather) {
+        self.weather = weather
         super.init(nibName: nil, bundle: nil)
-        view.backgroundColor = color
     }
     
     required init?(coder: NSCoder) {
@@ -49,19 +55,17 @@ class WeatherViewController: UIViewController {
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
         return UICollectionViewCompositionalLayout { sectionNumber, _ -> NSCollectionLayoutSection? in
-            
             if sectionNumber == 0 {
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                 
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalWidth(0.7)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
-                section.contentInsets = .init(top: 50, leading: 0, bottom: 10, trailing: 0)
+                section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
                 
                 return section
             } else if sectionNumber == 1 {
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                item.contentInsets.trailing = 10
                 
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(100), heightDimension: .absolute(150)), subitems: [item])
                 
@@ -108,9 +112,20 @@ extension WeatherViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: currentWeatherCell, for: indexPath)
-        cell.backgroundColor = .gray
-        cell.layer.cornerRadius = 5
-        return cell
+        switch indexPath.section {
+        case 0:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: currentWeatherCell, for: indexPath) as? CurrentWeatherCell else { return UICollectionViewCell() }
+            cell.backgroundColor = .clear
+            cell.cityNameLabel.text = weather.cityName
+            cell.tempLabel.text = "\(String(format: "%.0f", weather.currentWeather.temp))°"
+            cell.weatherDescriptionLabel.text = weather.currentWeather.description
+            cell.tempMaxMinLabel.text = "최고:\(String(format: "%.0f", weather.currentWeather.tempMax))° 최저:\(String(format: "%.0f", weather.currentWeather.tempMin))°"
+            return cell
+        default:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: hourlyForecastCell, for: indexPath) as? HourlyForecastCell else { return UICollectionViewCell() }
+            cell.backgroundColor = .secondaryLabel
+            cell.layer.cornerRadius = 5
+            return cell
+        }
     }
 }

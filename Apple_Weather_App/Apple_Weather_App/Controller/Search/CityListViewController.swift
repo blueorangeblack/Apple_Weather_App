@@ -31,7 +31,7 @@ class CityListViewController: UITableViewController {
         return sc
     }()
     
-    private lazy var places = [MKMapItem]() {
+    private lazy var cities = [MKMapItem]() {
         didSet {
             tableView.reloadData()
         }
@@ -71,9 +71,12 @@ class CityListViewController: UITableViewController {
             
             let place = response?.mapItems.first
             print(place?.placemark.coordinate as Any)
-            //print(self?.getPlaceString(place: place))
-
-            self?.places.append(place ?? MKMapItem())
+//            print(self?.getPlaceName(for: place))
+//            self?.places.append(place ?? MKMapItem())
+            
+            let latitude = place?.placemark.coordinate.latitude
+            let longitude = place?.placemark.coordinate.longitude
+            let placeName = self?.getPlaceName(for: place)
         })
     }
     
@@ -85,7 +88,7 @@ class CityListViewController: UITableViewController {
         }
     }
     
-    private func getPlaceString(place: MKMapItem?) -> String {
+    private func getPlaceName(for place: MKMapItem?) -> String {
         let locality = place?.placemark.locality
         let name = place?.name
         let subLocality = place?.placemark.subLocality
@@ -122,14 +125,13 @@ extension CityListViewController: UISearchBarDelegate {
 
 extension CityListViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return places.count
+        return cities.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseID, for: indexPath)
-        let place = places[indexPath.row]
-        let text = getPlaceString(place: place)
-        cell.textLabel?.text = text
+        let place = cities[indexPath.row]
+        cell.textLabel?.text = getPlaceName(for: place)
         
         return cell
     }
