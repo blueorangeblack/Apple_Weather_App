@@ -13,7 +13,7 @@ class CurrentWeatherCell: UICollectionViewCell {
     
     let cityNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 30)
+        label.font = UIFont.systemFont(ofSize: 32)
         label.textColor = .white
         return label
     }()
@@ -27,14 +27,14 @@ class CurrentWeatherCell: UICollectionViewCell {
     
     let weatherDescriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 20)
+        label.font = UIFont.boldSystemFont(ofSize: 20)
         label.textColor = .white
         return label
     }()
     
     let tempMaxMinLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 20)
+        label.font = UIFont.boldSystemFont(ofSize: 20)
         label.textColor = .white
         return label
     }()

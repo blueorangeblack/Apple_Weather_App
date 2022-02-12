@@ -10,5 +10,5 @@ import Foundation
 struct Weather {
     let cityName: String
     let currentWeather: CurrentWeather
-    //let forecast: Forecast
+    let forecast: Forecast
 }

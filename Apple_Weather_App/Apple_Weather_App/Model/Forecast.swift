@@ -13,7 +13,7 @@ struct Forecast: Decodable {
 }
 
 struct HourlyForecast: Decodable {
-    let dt: Int
+    let dt: Date
     private let weatherDescription: [WeatherDescription]
     let temp: Double
     
@@ -28,7 +28,7 @@ struct HourlyForecast: Decodable {
 }
 
 struct DailyForecast: Decodable {
-    let dt: Int
+    let dt: Date
     private let weatherDescription: [WeatherDescription]
     private let temp: Temp
     

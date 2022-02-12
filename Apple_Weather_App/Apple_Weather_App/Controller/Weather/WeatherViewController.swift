@@ -9,6 +9,7 @@ import UIKit
 
 private let currentWeatherCell = "CurrentWeatherCell"
 private let hourlyForecastCell = "HourlyForecastCell"
+private let dailyForecastCell = "DailyForecastCell"
 
 class WeatherViewController: UIViewController {
     
@@ -23,6 +24,7 @@ class WeatherViewController: UIViewController {
         collectionView.showsVerticalScrollIndicator = false
         collectionView.register(CurrentWeatherCell.self, forCellWithReuseIdentifier: currentWeatherCell)
         collectionView.register(HourlyForecastCell.self, forCellWithReuseIdentifier: hourlyForecastCell)
+        collectionView.register(DailyForecastCell.self, forCellWithReuseIdentifier: dailyForecastCell)
         collectionView.dataSource = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
@@ -44,9 +46,9 @@ class WeatherViewController: UIViewController {
         
         view.addSubview(collectionView)
         NSLayoutConstraint.activate([
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 30),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
         ])
     }
@@ -67,7 +69,7 @@ class WeatherViewController: UIViewController {
             } else if sectionNumber == 1 {
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                 
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(100), heightDimension: .absolute(150)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(85), heightDimension: .absolute(120)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
@@ -84,9 +86,10 @@ class WeatherViewController: UIViewController {
                 
                 return section
             } else {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(0.5), heightDimension: .absolute(300)))
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(0.5), heightDimension: .absolute(150)))
                 
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(1000)), subitems: [item])
+                
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = .init(top: 0, leading: 0, bottom: 50, trailing: 0)
                 
@@ -106,6 +109,8 @@ extension WeatherViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
             return 1
+        } else if section == 1 {
+            return 24
         } else {
             return 6
         }
@@ -117,14 +122,25 @@ extension WeatherViewController: UICollectionViewDataSource {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: currentWeatherCell, for: indexPath) as? CurrentWeatherCell else { return UICollectionViewCell() }
             cell.backgroundColor = .clear
             cell.cityNameLabel.text = weather.cityName
-            cell.tempLabel.text = "\(String(format: "%.0f", weather.currentWeather.temp))°"
+            cell.tempLabel.text = "\(String(Int(weather.currentWeather.temp)))°"
             cell.weatherDescriptionLabel.text = weather.currentWeather.description
-            cell.tempMaxMinLabel.text = "최고:\(String(format: "%.0f", weather.currentWeather.tempMax))° 최저:\(String(format: "%.0f", weather.currentWeather.tempMin))°"
+            cell.tempMaxMinLabel.text = "최고:\(String(Int(weather.currentWeather.tempMax)))° 최저:\(String(Int( weather.currentWeather.tempMin)))°"
+            cell.tempMaxMinLabel.text = "최고:\(String(Int(weather.forecast.daily[0].tempMax)))° 최저:\(String(Int(weather.forecast.daily[0].tempMin)))°"
+            
+            return cell
+        case 1:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: hourlyForecastCell, for: indexPath) as? HourlyForecastCell else { return UICollectionViewCell() }
+            let dateformatter = DateFormatter()
+            dateformatter.locale = Locale(identifier: "ko_KR")
+            dateformatter.dateFormat = "a h시"
+            cell.timeLabel.text = dateformatter.string(from: weather.forecast.hourly[indexPath.row].dt)
+            cell.tempLabel.text = "\(Int(weather.forecast.hourly[indexPath.row].temp))°"
+
             return cell
         default:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: hourlyForecastCell, for: indexPath) as? HourlyForecastCell else { return UICollectionViewCell() }
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: dailyForecastCell, for: indexPath) as? DailyForecastCell else { return UICollectionViewCell() }
             cell.backgroundColor = .secondaryLabel
-            cell.layer.cornerRadius = 5
+            
             return cell
         }
     }

@@ -54,6 +54,7 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
+        fetchWeather()
         // UserDefaults sample
 //        // 저장
 //        UserDefaults.standard.set(try? PropertyListEncoder().encode(self.cities), forKey: "cities")
@@ -69,23 +70,6 @@ class MainViewController: UIViewController {
 //        guard let data = UserDefaults.standard.value(forKey: "cities") as? Data,
 //              let cities2 = try? PropertyListDecoder().decode([City].self, from: data) else { return }
 //        print(cities2)
-        
-        // test
-        let currentWeatherManager = CurrentWeatherManager()
-        currentWeatherManager.fetchCurrentWeather(latitude: 37.5635684, longitude: 126.9084249) { [weak self] currentWeather in
-            DispatchQueue.main.async {
-                print(currentWeather)
-                let weather = Weather(cityName: "마포구", currentWeather: currentWeather)
-                
-                let vc = WeatherViewController(weather: weather)
-                self?.weatherViewControllers.append(vc)
-                
-                self?.pageControl.numberOfPages = self?.weatherViewControllers.count ?? 1
-                
-                guard let vc = self?.weatherViewControllers[0] else { return }
-                self?.pageViewController.setViewControllers([vc], direction: .forward, animated: true, completion: nil)
-            }
-        }
     }
     
     // MARK: - Helpers
@@ -109,6 +93,21 @@ class MainViewController: UIViewController {
             pageViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
             pageViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
         ])
+    }
+    
+    private func fetchWeather() {
+        let cityName = "마포구"
+        let latitude = 37.5635684
+        let longitude = 126.9084249
+        let weatherManager = WeatherManager(cityName: cityName, latitude: latitude, longitude: longitude)
+        weatherManager.fetchWeather { [weak self] weather in
+            let weather = weather
+            let vc = WeatherViewController(weather: weather)
+            self?.weatherViewControllers.append(vc)
+            self?.pageControl.numberOfPages = self?.weatherViewControllers.count ?? 1
+            guard let vc = self?.weatherViewControllers[0] else { return }
+            self?.pageViewController.setViewControllers([vc], direction: .forward, animated: true, completion: nil)
+        }
     }
     
     // MARK: - Actions
