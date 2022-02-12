@@ -28,5 +28,8 @@ line_length:
   warning: 250
   error: 400
   
+cyclomatic_complexity:
+  warning: 15
+  
 identifier_name:
   min_length: 2

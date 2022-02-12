@@ -12,7 +12,6 @@ struct WeatherManager {
     private let host = "api.openweathermap.org"
     private let queryItems = [
         URLQueryItem(name: "units", value: "metric"),
-        URLQueryItem(name: "lang", value: "kr"),
         URLQueryItem(name: "appid", value: "0f158f76db5b186912f2139b8612082c")
     ]
     let cityName: String
@@ -40,7 +39,6 @@ struct WeatherManager {
             guard let currentWeather = currentWeather,
                   let forecast = forecast else { return }
             let weather = Weather(cityName: cityName, currentWeather: currentWeather, forecast: forecast)
-            print(weather.forecast.hourly.count, "개")
             completion(weather)
         }
     }

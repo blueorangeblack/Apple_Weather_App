@@ -69,7 +69,7 @@ class WeatherViewController: UIViewController {
             } else if sectionNumber == 1 {
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                 
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(85), heightDimension: .absolute(120)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(80), heightDimension: .absolute(130)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
@@ -120,22 +120,13 @@ extension WeatherViewController: UICollectionViewDataSource {
         switch indexPath.section {
         case 0:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: currentWeatherCell, for: indexPath) as? CurrentWeatherCell else { return UICollectionViewCell() }
-            cell.backgroundColor = .clear
-            cell.cityNameLabel.text = weather.cityName
-            cell.tempLabel.text = "\(String(Int(weather.currentWeather.temp)))°"
-            cell.weatherDescriptionLabel.text = weather.currentWeather.description
-            cell.tempMaxMinLabel.text = "최고:\(String(Int(weather.currentWeather.tempMax)))° 최저:\(String(Int( weather.currentWeather.tempMin)))°"
-            cell.tempMaxMinLabel.text = "최고:\(String(Int(weather.forecast.daily[0].tempMax)))° 최저:\(String(Int(weather.forecast.daily[0].tempMin)))°"
+            cell.viewModel = CurrentWeatherViewModel(weather: weather)
             
             return cell
         case 1:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: hourlyForecastCell, for: indexPath) as? HourlyForecastCell else { return UICollectionViewCell() }
-            let dateformatter = DateFormatter()
-            dateformatter.locale = Locale(identifier: "ko_KR")
-            dateformatter.dateFormat = "a h시"
-            cell.timeLabel.text = dateformatter.string(from: weather.forecast.hourly[indexPath.row].dt)
-            cell.tempLabel.text = "\(Int(weather.forecast.hourly[indexPath.row].temp))°"
-
+            cell.viewModel = HourlyForecastViewModel(hourlyForecast: weather.forecast.hourly[indexPath.item])
+            
             return cell
         default:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: dailyForecastCell, for: indexPath) as? DailyForecastCell else { return UICollectionViewCell() }

@@ -11,22 +11,32 @@ class HourlyForecastCell: UICollectionViewCell {
     
     // MARK: - Properties
     
-    let timeLabel: UILabel = {
+    var viewModel: HourlyForecastViewModel? {
+        didSet { configure() }
+    }
+    
+    private let timeLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16)
+        label.font = UIFont.boldSystemFont(ofSize: 15)
         label.textColor = .white
         return label
     }()
     
-    let iconImageView: UIImageView = {
+    private let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "sun.max.fill")?.withRenderingMode(.alwaysOriginal)
         imageView.contentMode = .scaleAspectFit
-        imageView.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 22)
+        imageView.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
         return imageView
     }()
     
-    let tempLabel: UILabel = {
+    private let popLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.boldSystemFont(ofSize: 13)
+        label.textColor = .systemTeal
+        return label
+    }()
+    
+    private let tempLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 18)
         label.textColor = .white
@@ -39,23 +49,40 @@ class HourlyForecastCell: UICollectionViewCell {
         super.init(frame: frame)
         self.backgroundColor = .secondaryLabel
         
-        let stackView = UIStackView(arrangedSubviews: [timeLabel, iconImageView, tempLabel])
+        let iconStackView = UIStackView(arrangedSubviews: [imageView, popLabel])
+        iconStackView.axis = .vertical
+        iconStackView.alignment = .center
+        iconStackView.distribution = .fill
+        iconStackView.spacing = 2
+        iconStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let stackView = UIStackView(arrangedSubviews: [timeLabel, iconStackView, tempLabel])
         stackView.axis = .vertical
         stackView.alignment = .center
-        stackView.distribution = .fillProportionally
-        stackView.spacing = 10
+        stackView.distribution = .fillEqually
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
         addSubview(stackView)
         NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
-            stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 10),
-            stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
-            stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -10)
+            stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5),
+            stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+            stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5),
+            stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5)
         ])
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Helpers
+    
+    func configure() {
+        guard let viewModel = viewModel else { return }
+
+        timeLabel.text = viewModel.time
+        imageView.image = viewModel.image
+        popLabel.text = viewModel.pop
+        tempLabel.text = viewModel.temp
     }
 }

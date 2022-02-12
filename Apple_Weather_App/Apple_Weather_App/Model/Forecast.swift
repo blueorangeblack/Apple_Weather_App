@@ -15,14 +15,16 @@ struct Forecast: Decodable {
 struct HourlyForecast: Decodable {
     let dt: Date
     private let weatherDescription: [WeatherDescription]
+    let pop: Double
     let temp: Double
     
-    var description: String {
-        weatherDescription[0].weatherDescription
+    
+    var id: String {
+        weatherDescription[0].id
     }
     
     enum CodingKeys: String, CodingKey {
-        case dt, temp
+        case dt, pop, temp
         case weatherDescription = "weather"
     }
 }
@@ -30,10 +32,11 @@ struct HourlyForecast: Decodable {
 struct DailyForecast: Decodable {
     let dt: Date
     private let weatherDescription: [WeatherDescription]
+    let pop: Double
     private let temp: Temp
     
-    var description: String {
-        weatherDescription[0].weatherDescription
+    private var id: String {
+        weatherDescription[0].id
     }
     
     var tempMax: Double {
@@ -45,7 +48,7 @@ struct DailyForecast: Decodable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case dt, temp
+        case dt, pop, temp
         case weatherDescription = "weather"
     }
 }

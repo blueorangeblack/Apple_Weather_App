@@ -18,8 +18,8 @@ struct CurrentWeather: Decodable {
         main.temp
     }
     
-    var description: String {
-        weatherDescription[0].weatherDescription
+    var id: String {
+        weatherDescription[0].id
     }
     
     var tempMax: Double {
@@ -70,10 +70,10 @@ struct Main: Decodable {
 }
 
 struct WeatherDescription: Decodable {
-    let weatherDescription: String
+    let id: String
     
     enum CodingKeys: String, CodingKey {
-        case weatherDescription = "description"
+        case id = "icon"
     }
 }
 
