@@ -75,7 +75,7 @@ class MainViewController: UIViewController {
     // MARK: - Helpers
     
     private func configureUI() {
-        view.backgroundColor = .blue
+        view.backgroundColor = .systemTeal
         
         navigationController?.isNavigationBarHidden = true
         navigationController?.isToolbarHidden = false
@@ -96,9 +96,16 @@ class MainViewController: UIViewController {
     }
     
     private func fetchWeather() {
-        let cityName = "마포구"
-        let latitude = 37.5635684
-        let longitude = 126.9084249
+//        let cityName = "마포구"
+//        let latitude = 37.5635684
+//        let longitude = 126.9084249
+        let cityName = "퀘벡"
+        let latitude = 53.2915896
+        let longitude = -71.5164244
+//        let cityName = "브라질리아"
+//        let latitude = -15.7648084
+//        let longitude = -47.8878119
+        
         let weatherManager = WeatherManager(cityName: cityName, latitude: latitude, longitude: longitude)
         weatherManager.fetchWeather { [weak self] weather in
             let weather = weather
@@ -132,6 +139,7 @@ extension MainViewController: UIPageViewControllerDataSource {
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let vc = viewController as? WeatherViewController,
               let index = weatherViewControllers.firstIndex(of: vc) else { return nil }
+        
         let previousIndex = index - 1
         if previousIndex < 0 { return nil }
 
@@ -141,6 +149,7 @@ extension MainViewController: UIPageViewControllerDataSource {
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let vc = viewController as? WeatherViewController,
               let index = weatherViewControllers.firstIndex(of: vc) else { return nil }
+        
         let nextIndex = index + 1
         if nextIndex == weatherViewControllers.count { return nil }
 

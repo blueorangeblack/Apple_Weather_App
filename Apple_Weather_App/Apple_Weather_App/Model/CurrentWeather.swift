@@ -13,6 +13,7 @@ struct CurrentWeather: Decodable {
     private let wind: Wind
     private let sun: Sun
     let visibility: Int
+    let timezone: Int
     
     var temp: Double {
         main.temp
@@ -47,7 +48,7 @@ struct CurrentWeather: Decodable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case main, wind, visibility
+        case main, wind, visibility, timezone
         case weatherDescription = "weather"
         case sun = "sys"
     }

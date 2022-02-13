@@ -8,28 +8,36 @@
 import UIKit
 
 struct HourlyForecastViewModel {
+    let currentWeather: CurrentWeather
     let hourlyForecast: HourlyForecast
     
-    var time: String {
-        let now = Date()
+    var time: String
+    var image: UIImage
+    var pop: String
+    var temp: String
+    
+    init(currentWeather: CurrentWeather, hourlyForecast: HourlyForecast) {
+        self.currentWeather = currentWeather
+        self.hourlyForecast = hourlyForecast
+        
         let time = hourlyForecast.dt
-        if now > time {
-            return "지금"
+        let now = Date()
+        if time < now {
+            self.time = "지금"
+            self.temp = currentWeather.temp.tempString()
+            self.image = currentWeather.id.weatherImage()
+            self.pop = ""
         } else {
             let dateformatter = DateFormatter()
             dateformatter.locale = Locale(identifier: "ko_KR")
+            dateformatter.timeZone = TimeZone(secondsFromGMT: currentWeather.timezone)
             dateformatter.dateFormat = "a h시"
-            return dateformatter.string(from: time)
+            self.time = dateformatter.string(from: time)
+            self.temp = hourlyForecast.temp.tempString()
+            self.image = hourlyForecast.id.weatherImage()
+            let pop = hourlyForecast.pop
+            let id = hourlyForecast.id
+            self.pop = pop.probabilityOfPrecipitation(id: id)
         }
     }
-    
-    var image: UIImage { return hourlyForecast.id.weatherImage() }
-    
-    var pop: String {
-        let pop = hourlyForecast.pop
-        let id = hourlyForecast.id
-        return pop.probabilityOfPrecipitation(id: id)
-    }
-    
-    var temp: String { return hourlyForecast.temp.tempString() }
 }

@@ -17,28 +17,16 @@ class HourlyForecastCell: UICollectionViewCell {
     
     private let timeLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 15)
+        label.font = UIFont.boldSystemFont(ofSize: 16)
         label.textColor = .white
         return label
     }()
     
-    private let imageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
-        imageView.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
-        return imageView
-    }()
-    
-    private let popLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 13)
-        label.textColor = .systemTeal
-        return label
-    }()
+    private let iconAndPopStackView = IconAndPopStackView()
     
     private let tempLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 18)
+        label.font = UIFont.systemFont(ofSize: 20)
         label.textColor = .white
         return label
     }()
@@ -47,22 +35,16 @@ class HourlyForecastCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = .secondaryLabel
+        backgroundColor = .secondaryLabel
         
-        let iconStackView = UIStackView(arrangedSubviews: [imageView, popLabel])
-        iconStackView.axis = .vertical
-        iconStackView.alignment = .center
-        iconStackView.distribution = .fill
-        iconStackView.spacing = 2
-        iconStackView.translatesAutoresizingMaskIntoConstraints = false
-        
-        let stackView = UIStackView(arrangedSubviews: [timeLabel, iconStackView, tempLabel])
+        let stackView = UIStackView(arrangedSubviews: [timeLabel, iconAndPopStackView, tempLabel])
         stackView.axis = .vertical
         stackView.alignment = .center
         stackView.distribution = .fillEqually
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
         addSubview(stackView)
+        
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5),
             stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
@@ -81,8 +63,8 @@ class HourlyForecastCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
 
         timeLabel.text = viewModel.time
-        imageView.image = viewModel.image
-        popLabel.text = viewModel.pop
+        iconAndPopStackView.imageView.image = viewModel.image
+        iconAndPopStackView.popLabel.text = viewModel.pop
         tempLabel.text = viewModel.temp
     }
 }

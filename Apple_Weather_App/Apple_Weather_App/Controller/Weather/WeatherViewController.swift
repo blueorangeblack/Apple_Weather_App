@@ -10,12 +10,17 @@ import UIKit
 private let currentWeatherCell = "CurrentWeatherCell"
 private let hourlyForecastCell = "HourlyForecastCell"
 private let dailyForecastCell = "DailyForecastCell"
+private let weatherDetailCell = "WeatherDetailCell"
 
 class WeatherViewController: UIViewController {
     
     // MARK: - Properties
     
     var weather: Weather
+    
+    private lazy var timezone = weather.currentWeather.timezone
+    private lazy var weeklyMinTemp = Int(weather.forecast.daily.map { $0.tempMin }.sorted(by: <).first ?? 0)
+    private lazy var weeklyMaxTemp = Int(weather.forecast.daily.map { $0.tempMax }.sorted(by: >).first ?? 0)
     
     private lazy var collectionView: UICollectionView = {
         let layout = createLayout()
@@ -25,6 +30,7 @@ class WeatherViewController: UIViewController {
         collectionView.register(CurrentWeatherCell.self, forCellWithReuseIdentifier: currentWeatherCell)
         collectionView.register(HourlyForecastCell.self, forCellWithReuseIdentifier: hourlyForecastCell)
         collectionView.register(DailyForecastCell.self, forCellWithReuseIdentifier: dailyForecastCell)
+        collectionView.register(WeatherDetailCell.self, forCellWithReuseIdentifier: weatherDetailCell)
         collectionView.dataSource = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
@@ -79,7 +85,7 @@ class WeatherViewController: UIViewController {
             } else if sectionNumber == 2 {
                 let item = NSCollectionLayoutItem.init(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                 
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(55)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
@@ -110,9 +116,9 @@ extension WeatherViewController: UICollectionViewDataSource {
         if section == 0 {
             return 1
         } else if section == 1 {
-            return 24
+            return 25
         } else {
-            return 6
+            return 8
         }
     }
     
@@ -125,14 +131,20 @@ extension WeatherViewController: UICollectionViewDataSource {
             return cell
         case 1:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: hourlyForecastCell, for: indexPath) as? HourlyForecastCell else { return UICollectionViewCell() }
-            cell.viewModel = HourlyForecastViewModel(hourlyForecast: weather.forecast.hourly[indexPath.item])
+            cell.viewModel = HourlyForecastViewModel(currentWeather: weather.currentWeather, hourlyForecast: weather.forecast.hourly[indexPath.item])
             
             return cell
-        default:
+        case 2:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: dailyForecastCell, for: indexPath) as? DailyForecastCell else { return UICollectionViewCell() }
-            cell.backgroundColor = .secondaryLabel
+            cell.viewModel = DailyForecastViewModel(dailyForecast: weather.forecast.daily[indexPath.item], index: indexPath.item, timezone: timezone, weeklyMinTemp: weeklyMinTemp, weeklyMaxTemp: weeklyMaxTemp)
             
             return cell
+        case 3:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: weatherDetailCell, for: indexPath) as? WeatherDetailCell else { return UICollectionViewCell() }
+            
+            return cell
+        default :
+            return UICollectionViewCell()
         }
     }
 }

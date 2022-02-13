@@ -18,7 +18,6 @@ struct HourlyForecast: Decodable {
     let pop: Double
     let temp: Double
     
-    
     var id: String {
         weatherDescription[0].id
     }
@@ -35,7 +34,7 @@ struct DailyForecast: Decodable {
     let pop: Double
     private let temp: Temp
     
-    private var id: String {
+    var id: String {
         weatherDescription[0].id
     }
     
