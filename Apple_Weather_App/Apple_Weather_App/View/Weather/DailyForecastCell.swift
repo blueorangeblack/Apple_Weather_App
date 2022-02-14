@@ -56,7 +56,6 @@ class DailyForecastCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.backgroundColor = .secondaryLabel
         
         NSLayoutConstraint.activate([
             dayLabel.widthAnchor.constraint(equalToConstant: 36),

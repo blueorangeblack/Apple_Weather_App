@@ -35,7 +35,6 @@ class HourlyForecastCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.backgroundColor = .secondaryLabel
         
         let stackView = UIStackView(arrangedSubviews: [timeLabel, iconAndPopStackView, tempLabel])
         stackView.axis = .vertical

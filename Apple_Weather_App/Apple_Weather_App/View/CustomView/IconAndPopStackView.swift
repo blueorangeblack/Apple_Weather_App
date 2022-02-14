@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// 날씨 아이콘 이미지와 강수확률
 class IconAndPopStackView: UIStackView {
     
     // MARK: - Properties

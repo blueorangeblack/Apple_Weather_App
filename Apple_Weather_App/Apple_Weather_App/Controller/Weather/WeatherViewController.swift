@@ -11,6 +11,7 @@ private let currentWeatherCell = "CurrentWeatherCell"
 private let hourlyForecastCell = "HourlyForecastCell"
 private let dailyForecastCell = "DailyForecastCell"
 private let weatherDetailCell = "WeatherDetailCell"
+private let roundedBackgroundView = "RoundedBackgroundView"
 
 class WeatherViewController: UIViewController {
     
@@ -31,6 +32,7 @@ class WeatherViewController: UIViewController {
         collectionView.register(HourlyForecastCell.self, forCellWithReuseIdentifier: hourlyForecastCell)
         collectionView.register(DailyForecastCell.self, forCellWithReuseIdentifier: dailyForecastCell)
         collectionView.register(WeatherDetailCell.self, forCellWithReuseIdentifier: weatherDetailCell)
+        layout.register(RoundedBackgroundView.self, forDecorationViewOfKind: roundedBackgroundView)
         collectionView.dataSource = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
@@ -80,6 +82,9 @@ class WeatherViewController: UIViewController {
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
                 section.orthogonalScrollingBehavior = .continuous
+                section.decorationItems = [
+                    NSCollectionLayoutDecorationItem.background(elementKind: roundedBackgroundView)
+                ]
                 
                 return section
             } else if sectionNumber == 2 {
@@ -89,6 +94,9 @@ class WeatherViewController: UIViewController {
                 
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
+                section.decorationItems = [
+                    NSCollectionLayoutDecorationItem.background(elementKind: roundedBackgroundView)
+                ]
                 
                 return section
             } else {
@@ -117,8 +125,10 @@ extension WeatherViewController: UICollectionViewDataSource {
             return 1
         } else if section == 1 {
             return 25
-        } else {
+        } else if section == 2 {
             return 8
+        } else {
+            return 6
         }
     }
     
@@ -141,6 +151,7 @@ extension WeatherViewController: UICollectionViewDataSource {
             return cell
         case 3:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: weatherDetailCell, for: indexPath) as? WeatherDetailCell else { return UICollectionViewCell() }
+            cell.viewModel = WeatherDetailViewModel(currentWeather: weather.currentWeather, index: indexPath.item, timezone: timezone)
             
             return cell
         default :

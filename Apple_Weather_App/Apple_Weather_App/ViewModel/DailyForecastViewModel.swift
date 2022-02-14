@@ -10,15 +10,15 @@ import UIKit
 struct DailyForecastViewModel {
     let dailyForecast: DailyForecast
     
-    var day: String
-    var image: UIImage
-    var pop: String
-    var tempMinString: String
-    var tempMaxString: String
-    var dailyMinTemp: Int
-    var dailyMaxTemp: Int
-    var weeklyMinTemp: Int
-    var weeklyMaxTemp: Int
+    let day: String
+    let image: UIImage
+    let pop: String
+    let tempMinString: String
+    let tempMaxString: String
+    let dailyMinTemp: Int
+    let dailyMaxTemp: Int
+    let weeklyMinTemp: Int
+    let weeklyMaxTemp: Int
     
     init(dailyForecast: DailyForecast, index: Int, timezone: Int, weeklyMinTemp: Int, weeklyMaxTemp: Int) {
         self.dailyForecast = dailyForecast

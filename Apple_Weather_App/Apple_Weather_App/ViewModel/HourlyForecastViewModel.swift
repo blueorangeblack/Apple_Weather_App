@@ -11,10 +11,10 @@ struct HourlyForecastViewModel {
     let currentWeather: CurrentWeather
     let hourlyForecast: HourlyForecast
     
-    var time: String
-    var image: UIImage
-    var pop: String
-    var temp: String
+    let time: String
+    let image: UIImage
+    let pop: String
+    let temp: String
     
     init(currentWeather: CurrentWeather, hourlyForecast: HourlyForecast) {
         self.currentWeather = currentWeather
