@@ -47,7 +47,7 @@ class CurrentWeatherCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .clear
+        contentView.backgroundColor = .clear
         
         let stackView = UIStackView(arrangedSubviews: [cityNameLabel, tempLabel, weatherDescriptionLabel, tempMaxMinLabel])
         stackView.axis = .vertical
@@ -55,7 +55,8 @@ class CurrentWeatherCell: UICollectionViewCell {
         stackView.distribution = .fillProportionally
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
-        addSubview(stackView)
+        contentView.addSubview(stackView)
+        
         NSLayoutConstraint.activate([
             stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             stackView.centerXAnchor.constraint(equalTo: centerXAnchor)

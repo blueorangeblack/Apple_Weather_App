@@ -35,7 +35,7 @@ class HourlyForecastCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .secondaryLabel
+        contentView.backgroundColor = .secondaryLabel
         
         let stackView = UIStackView(arrangedSubviews: [timeLabel, iconAndPopStackView, tempLabel])
         stackView.axis = .vertical
@@ -43,7 +43,7 @@ class HourlyForecastCell: UICollectionViewCell {
         stackView.distribution = .fillEqually
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
-        addSubview(stackView)
+        contentView.addSubview(stackView)
         
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5),

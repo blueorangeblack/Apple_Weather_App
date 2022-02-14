@@ -37,7 +37,7 @@ struct HourlyForecastViewModel {
             self.image = hourlyForecast.id.weatherImage()
             let pop = hourlyForecast.pop
             let id = hourlyForecast.id
-            self.pop = pop.probabilityOfPrecipitation(id: id)
+            self.pop = pop.probabilityOfPrecipitation(for: id)
         }
     }
 }

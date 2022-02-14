@@ -8,14 +8,19 @@
 import UIKit
 
 extension Double {
+    /// Double type의 온도를 String type으로 변환
+    /// - Returns: 온도(°)
     func tempString() -> String {
         return "\(String(Int(self)))°"
     }
     
-    func probabilityOfPrecipitation(id: String) -> String {
+    /// 비와 관련된 id이고, 강수확률이 10%보다 높을 경우 10단위로 강수확률을 나타냄
+    /// - Parameter id: weatherID
+    /// - Returns: 강수확률(%) (20% ~ 100%)
+    func probabilityOfPrecipitation(for id: String) -> String {
         let rainIDs = ["09d", "09n", "10d", "10n", "11d", "11n", "13d", "13n"]
         
-        if self > 0.1 && rainIDs.contains(id) {
+        if rainIDs.contains(id) && self > 0.1 {
             let num: Int = Int((Double(String(format: "%.1f", self)) ?? 0) * 100)
             return "\(num)%"
         } else {
@@ -25,6 +30,8 @@ extension Double {
 }
 
 extension String {
+    /// weatherID에 해당하는 간단한 날씨 설명
+    /// - Returns: 간단한 날씨 설명
     func weatherDescription() -> String {
         switch self {
         case "01d": return "맑음"
@@ -42,6 +49,8 @@ extension String {
         }
     }
     
+    /// weatherID에 해당하는 날씨 아이콘 이미지
+    /// - Returns: 날씨 아이콘 이미지
     func weatherImage() -> UIImage {
         var imageName = ""
         

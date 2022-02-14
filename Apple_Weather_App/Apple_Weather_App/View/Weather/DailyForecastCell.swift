@@ -15,6 +15,8 @@ class DailyForecastCell: UICollectionViewCell {
         didSet { configure() }
     }
     
+    private let tempRangeViewHeight: CGFloat = 4
+    
     private let dayLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 20)
@@ -34,10 +36,11 @@ class DailyForecastCell: UICollectionViewCell {
     
     private let spaceView = UIView()
     
-    let tempRangeView: UIView = {
+    private lazy var tempRangeView: UIView = {
         let view = UIView()
         view.backgroundColor = .gray
         view.clipsToBounds = true
+        view.layer.cornerRadius = tempRangeViewHeight / 2
         return view
     }()
     
@@ -53,7 +56,7 @@ class DailyForecastCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .secondaryLabel
+        contentView.backgroundColor = .secondaryLabel
         
         NSLayoutConstraint.activate([
             dayLabel.widthAnchor.constraint(equalToConstant: 36),
@@ -61,7 +64,7 @@ class DailyForecastCell: UICollectionViewCell {
             tempMinLabel.widthAnchor.constraint(equalToConstant: 44),
             spaceView.widthAnchor.constraint(lessThanOrEqualToConstant: 10),
             tempRangeView.widthAnchor.constraint(lessThanOrEqualToConstant: 100),
-            tempRangeView.heightAnchor.constraint(equalToConstant: 2),
+            tempRangeView.heightAnchor.constraint(equalToConstant: tempRangeViewHeight),
             tempMaxLabel.widthAnchor.constraint(equalToConstant: 44)
         ])
         
@@ -73,7 +76,7 @@ class DailyForecastCell: UICollectionViewCell {
         stackView.distribution = .fill
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
-        addSubview(stackView)
+        contentView.addSubview(stackView)
         
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
@@ -89,6 +92,48 @@ class DailyForecastCell: UICollectionViewCell {
     
     // MARK: - Helpers
     
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        guard let viewModel = viewModel else { return }
+        
+        let dailyMin = viewModel.dailyMinTemp
+        let dailyMax = viewModel.dailyMaxTemp
+        let weeklyMin = viewModel.weeklyMinTemp
+        let weeklyMax = viewModel.weeklyMaxTemp
+        
+        let weeklyRange = weeklyMax - weeklyMin
+        let dailyX1 = CGFloat((dailyMin - weeklyMin) * 100 / weeklyRange)
+        let dailyX2 = CGFloat(100 / weeklyRange * (weeklyRange - (weeklyMax - dailyMax)))
+        
+        let dailyPath = UIBezierPath()
+        dailyPath.lineWidth = tempRangeViewHeight
+        dailyPath.move(to: CGPoint(x: dailyX1, y: tempRangeViewHeight / 2))
+        if dailyMax == weeklyMax {
+            dailyPath.addLine(to: CGPoint(x: 100, y: tempRangeViewHeight / 2))
+        } else {
+            dailyPath.addLine(to: CGPoint(x: dailyX2, y: tempRangeViewHeight / 2))
+        }
+        UIColor.clear.setStroke()
+        
+        let dailyShapeLayer = CAShapeLayer()
+        dailyShapeLayer.path = dailyPath.cgPath
+        dailyShapeLayer.lineWidth = dailyPath.lineWidth
+        var strokeColor = UIColor.blue.cgColor
+        if dailyMax < 0 {
+            strokeColor = UIColor.blue.cgColor
+        } else if dailyMax < 10 {
+            strokeColor = UIColor.systemTeal.cgColor
+        } else if dailyMax < 20 {
+            strokeColor = UIColor.yellow.cgColor
+        } else {
+            strokeColor = UIColor.orange.cgColor
+        }
+        dailyShapeLayer.strokeColor = strokeColor
+        dailyShapeLayer.lineCap = .round
+        
+        tempRangeView.layer.addSublayer(dailyShapeLayer)
+    }
+    
     func configure() {
         guard let viewModel = viewModel else { return }
         
@@ -97,31 +142,5 @@ class DailyForecastCell: UICollectionViewCell {
         iconAndPopStackView.popLabel.text = viewModel.pop
         tempMinLabel.text = viewModel.tempMinString
         tempMaxLabel.text = viewModel.tempMaxString
-        
-        let dayilyMin = viewModel.dayilyMinTemp
-        let dayilyMax = viewModel.dayilyMaxTemp
-        let weeklyMin = viewModel.weeklyMinTemp
-        let weeklyMax = viewModel.weeklyMaxTemp
-        
-        let weeklyRange = weeklyMax - weeklyMin
-        let start: CGFloat = CGFloat((dayilyMin - weeklyMin) * 100 / weeklyRange)
-        let stop: CGFloat = CGFloat(100 / weeklyRange * (weeklyRange - (weeklyMax - dayilyMax)))
-        
-        let path = UIBezierPath()
-        path.lineWidth = 3
-        path.move(to: CGPoint(x: start, y: 1.5))
-        if dayilyMax == weeklyMax {
-            path.addLine(to: CGPoint(x: 100, y: 1.5))
-        } else {
-            path.addLine(to: CGPoint(x: stop, y: 1.5))
-        }
-        path.close()
-        
-        let shapeLayer = CAShapeLayer()
-        shapeLayer.path = path.cgPath
-        shapeLayer.lineWidth = path.lineWidth
-        shapeLayer.strokeColor = UIColor.orange.cgColor
-        
-        tempRangeView.layer.addSublayer(shapeLayer)
     }
 }

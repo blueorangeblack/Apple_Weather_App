@@ -15,8 +15,8 @@ struct DailyForecastViewModel {
     var pop: String
     var tempMinString: String
     var tempMaxString: String
-    var dayilyMinTemp: Int
-    var dayilyMaxTemp: Int
+    var dailyMinTemp: Int
+    var dailyMaxTemp: Int
     var weeklyMinTemp: Int
     var weeklyMaxTemp: Int
     
@@ -38,13 +38,13 @@ struct DailyForecastViewModel {
         
         let pop = dailyForecast.pop
         let id = dailyForecast.id
-        self.pop = pop.probabilityOfPrecipitation(id: id)
+        self.pop = pop.probabilityOfPrecipitation(for: id)
         
         self.tempMinString = dailyForecast.tempMin.tempString()
         self.tempMaxString = dailyForecast.tempMax.tempString()
         
-        self.dayilyMinTemp = Int(dailyForecast.tempMin)
-        self.dayilyMaxTemp = Int(dailyForecast.tempMax)
+        self.dailyMinTemp = Int(dailyForecast.tempMin)
+        self.dailyMaxTemp = Int(dailyForecast.tempMax)
         
         self.weeklyMinTemp = weeklyMinTemp
         self.weeklyMaxTemp = weeklyMaxTemp
