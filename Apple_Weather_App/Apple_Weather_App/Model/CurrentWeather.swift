@@ -11,7 +11,7 @@ struct CurrentWeather: Decodable {
     private let main: Main
     private let weatherDescription: [WeatherDescription]
     private let wind: Wind
-    private let sun: Sun
+    let sun: Sun
     let visibility: Int
     let timezone: Int
     
@@ -83,6 +83,6 @@ struct Wind: Decodable {
 }
 
 struct Sun: Decodable {
-    let sunrise: Int
-    let sunset: Int
+    let sunrise: Date
+    let sunset: Date
 }

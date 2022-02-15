@@ -15,12 +15,11 @@ struct DailyForecastViewModel {
     let pop: String
     let tempMinString: String
     let tempMaxString: String
-    let dailyMinTemp: Int
-    let dailyMaxTemp: Int
-    let weeklyMinTemp: Int
-    let weeklyMaxTemp: Int
+    let dailyX1: CGFloat
+    let dailyX2: CGFloat
+    let strokeColor: CGColor
     
-    init(dailyForecast: DailyForecast, index: Int, timezone: Int, weeklyMinTemp: Int, weeklyMaxTemp: Int) {
+    init(dailyForecast: DailyForecast, index: Int, timezone: Int, weeklyMinTemp weeklyMin: Int, weeklyMaxTemp weeklyMax: Int) {
         self.dailyForecast = dailyForecast
         
         if index == 0 {
@@ -43,10 +42,26 @@ struct DailyForecastViewModel {
         self.tempMinString = dailyForecast.tempMin.tempString()
         self.tempMaxString = dailyForecast.tempMax.tempString()
         
-        self.dailyMinTemp = Int(dailyForecast.tempMin)
-        self.dailyMaxTemp = Int(dailyForecast.tempMax)
+        let dailyMin = Int(dailyForecast.tempMin)
+        let dailyMax = Int(dailyForecast.tempMax)
+        let weeklyRange = weeklyMax - weeklyMin
         
-        self.weeklyMinTemp = weeklyMinTemp
-        self.weeklyMaxTemp = weeklyMaxTemp
+        self.dailyX1 = CGFloat((dailyMin - weeklyMin) * 100 / weeklyRange)
+
+        if dailyMax == weeklyMax {
+            self.dailyX2 = 100
+        } else {
+            self.dailyX2 = CGFloat(100 / weeklyRange * (weeklyRange - (weeklyMax - dailyMax)))
+        }
+        
+        if dailyMax < 0 {
+            strokeColor = dailyBlue.cgColor
+        } else if dailyMax < 10 {
+            strokeColor = dailySkyBlue.cgColor
+        } else if dailyMax < 20 {
+            strokeColor = dailyYellow.cgColor
+        } else {
+            strokeColor = dailyOrange.cgColor
+        }
     }
 }

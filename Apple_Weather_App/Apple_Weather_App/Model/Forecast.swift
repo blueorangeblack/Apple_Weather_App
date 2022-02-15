@@ -33,6 +33,8 @@ struct DailyForecast: Decodable {
     private let weatherDescription: [WeatherDescription]
     let pop: Double
     private let temp: Temp
+    let sunrise: Date
+    let sunset: Date
     
     var id: String {
         weatherDescription[0].id
@@ -47,7 +49,7 @@ struct DailyForecast: Decodable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case dt, pop, temp
+        case dt, pop, temp, sunrise, sunset
         case weatherDescription = "weather"
     }
 }

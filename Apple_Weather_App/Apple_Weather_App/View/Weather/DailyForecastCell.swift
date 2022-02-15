@@ -30,7 +30,7 @@ class DailyForecastCell: UICollectionViewCell {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 20)
         label.textAlignment = .right
-        label.textColor = .secondarySystemBackground.withAlphaComponent(0.5)
+        label.textColor = headerTitleColor
         return label
     }()
     
@@ -38,7 +38,7 @@ class DailyForecastCell: UICollectionViewCell {
     
     private lazy var tempRangeView: UIView = {
         let view = UIView()
-        view.backgroundColor = .gray
+        view.backgroundColor = tempRangeViewColor
         view.clipsToBounds = true
         view.layer.cornerRadius = tempRangeViewHeight / 2
         return view
@@ -95,39 +95,16 @@ class DailyForecastCell: UICollectionViewCell {
         super.draw(rect)
         guard let viewModel = viewModel else { return }
         
-        let dailyMin = viewModel.dailyMinTemp
-        let dailyMax = viewModel.dailyMaxTemp
-        let weeklyMin = viewModel.weeklyMinTemp
-        let weeklyMax = viewModel.weeklyMaxTemp
-        
-        let weeklyRange = weeklyMax - weeklyMin
-        let dailyX1 = CGFloat((dailyMin - weeklyMin) * 100 / weeklyRange)
-        let dailyX2 = CGFloat(100 / weeklyRange * (weeklyRange - (weeklyMax - dailyMax)))
-        
         let dailyPath = UIBezierPath()
         dailyPath.lineWidth = tempRangeViewHeight
-        dailyPath.move(to: CGPoint(x: dailyX1, y: tempRangeViewHeight / 2))
-        if dailyMax == weeklyMax {
-            dailyPath.addLine(to: CGPoint(x: 100, y: tempRangeViewHeight / 2))
-        } else {
-            dailyPath.addLine(to: CGPoint(x: dailyX2, y: tempRangeViewHeight / 2))
-        }
+        dailyPath.move(to: CGPoint(x: viewModel.dailyX1, y: tempRangeViewHeight / 2))
+        dailyPath.addLine(to: CGPoint(x: viewModel.dailyX2, y: tempRangeViewHeight / 2))
         UIColor.clear.setStroke()
         
         let dailyShapeLayer = CAShapeLayer()
         dailyShapeLayer.path = dailyPath.cgPath
         dailyShapeLayer.lineWidth = dailyPath.lineWidth
-        var strokeColor = UIColor.blue.cgColor
-        if dailyMax < 0 {
-            strokeColor = UIColor.blue.cgColor
-        } else if dailyMax < 10 {
-            strokeColor = UIColor.systemTeal.cgColor
-        } else if dailyMax < 20 {
-            strokeColor = UIColor.yellow.cgColor
-        } else {
-            strokeColor = UIColor.orange.cgColor
-        }
-        dailyShapeLayer.strokeColor = strokeColor
+        dailyShapeLayer.strokeColor = viewModel.strokeColor
         dailyShapeLayer.lineCap = .round
         
         tempRangeView.layer.addSublayer(dailyShapeLayer)

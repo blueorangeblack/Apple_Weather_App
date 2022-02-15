@@ -75,7 +75,7 @@ class MainViewController: UIViewController {
     // MARK: - Helpers
     
     private func configureUI() {
-        view.backgroundColor = .systemTeal
+        view.backgroundColor = dailySkyBlue
         
         navigationController?.isNavigationBarHidden = true
         navigationController?.isToolbarHidden = false
@@ -99,9 +99,15 @@ class MainViewController: UIViewController {
 //        let cityName = "마포구"
 //        let latitude = 37.5635684
 //        let longitude = 126.9084249
-        let cityName = "퀘벡"
-        let latitude = 53.2915896
-        let longitude = -71.5164244
+//        let cityName = "동작구"
+//        let latitude = 37.5124519
+//        let longitude = 126.9394689
+        let cityName = "런던"
+        let latitude = 51.5033466
+        let longitude = -0.0793965
+//        let cityName = "퀘벡"
+//        let latitude = 53.2915896
+//        let longitude = -71.5164244
 //        let cityName = "브라질리아"
 //        let latitude = -15.7648084
 //        let longitude = -47.8878119

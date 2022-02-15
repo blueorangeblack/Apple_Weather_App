@@ -58,10 +58,12 @@ struct WeatherManager {
         guard let requestURL = urlComponents.url else { return }
         let session = URLSession(configuration: .default)
         let dataTask = session.dataTask(with: requestURL) { data, response, error in
+            let jsonDecoder = JSONDecoder()
+            jsonDecoder.dateDecodingStrategy = .secondsSince1970
             guard error == nil,
                   let response = response as? HTTPURLResponse,
                   let data = data,
-                  let currentWeather = try? JSONDecoder().decode(CurrentWeather.self, from: data) else { return }
+                  let currentWeather = try? jsonDecoder.decode(CurrentWeather.self, from: data) else { return }
             
             switch response.statusCode {
             case 200..<300:

@@ -12,6 +12,7 @@ private let hourlyForecastCell = "HourlyForecastCell"
 private let dailyForecastCell = "DailyForecastCell"
 private let weatherDetailCell = "WeatherDetailCell"
 private let roundedBackgroundView = "RoundedBackgroundView"
+private let headerView = "HeaderView"
 
 class WeatherViewController: UIViewController {
     
@@ -26,15 +27,23 @@ class WeatherViewController: UIViewController {
     private lazy var collectionView: UICollectionView = {
         let layout = createLayout()
         let collectionView = UICollectionView(frame: CGRect(x: 0, y: 0, width: 0, height: 0), collectionViewLayout: layout)
+        
         collectionView.backgroundColor = .clear
         collectionView.showsVerticalScrollIndicator = false
+        collectionView.dataSource = self
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        
         collectionView.register(CurrentWeatherCell.self, forCellWithReuseIdentifier: currentWeatherCell)
         collectionView.register(HourlyForecastCell.self, forCellWithReuseIdentifier: hourlyForecastCell)
         collectionView.register(DailyForecastCell.self, forCellWithReuseIdentifier: dailyForecastCell)
         collectionView.register(WeatherDetailCell.self, forCellWithReuseIdentifier: weatherDetailCell)
+        collectionView.register(HeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerView)
         layout.register(RoundedBackgroundView.self, forDecorationViewOfKind: roundedBackgroundView)
-        collectionView.dataSource = self
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let config = UICollectionViewCompositionalLayoutConfiguration()
+        config.interSectionSpacing = 10
+        layout.configuration = config
+        
         return collectionView
     }()
     
@@ -65,47 +74,50 @@ class WeatherViewController: UIViewController {
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
         return UICollectionViewCompositionalLayout { sectionNumber, _ -> NSCollectionLayoutSection? in
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(35))
+            let headerView = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+            headerView.pinToVisibleBounds = true
+            
             if sectionNumber == 0 {
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                 
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalWidth(0.7)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
-                section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
                 
                 return section
             } else if sectionNumber == 1 {
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                 
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(80), heightDimension: .absolute(130)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(80), heightDimension: .absolute(115)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
-                section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
                 section.orthogonalScrollingBehavior = .continuous
                 section.decorationItems = [
                     NSCollectionLayoutDecorationItem.background(elementKind: roundedBackgroundView)
                 ]
+                section.boundarySupplementaryItems = [headerView]
                 
                 return section
             } else if sectionNumber == 2 {
                 let item = NSCollectionLayoutItem.init(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                 
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(55)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
-                section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
                 section.decorationItems = [
                     NSCollectionLayoutDecorationItem.background(elementKind: roundedBackgroundView)
                 ]
+                section.boundarySupplementaryItems = [headerView]
                 
                 return section
             } else {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(0.5), heightDimension: .absolute(150)))
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(0.5), heightDimension: .absolute(130)))
                 
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(1000)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
-                section.contentInsets = .init(top: 0, leading: 0, bottom: 50, trailing: 0)
+                section.contentInsets = .init(top: 0, leading: 0, bottom: 15, trailing: 0)
                 
                 return section
             }
@@ -151,11 +163,18 @@ extension WeatherViewController: UICollectionViewDataSource {
             return cell
         case 3:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: weatherDetailCell, for: indexPath) as? WeatherDetailCell else { return UICollectionViewCell() }
-            cell.viewModel = WeatherDetailViewModel(currentWeather: weather.currentWeather, index: indexPath.item, timezone: timezone)
+            cell.viewModel = WeatherDetailViewModel(currentWeather: weather.currentWeather, index: indexPath.item, timezone: timezone, tomorrowSunrise: weather.forecast.daily[1].sunrise, tomorrowSunset: weather.forecast.daily[1].sunset)
             
             return cell
         default :
             return UICollectionViewCell()
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerView, for: indexPath) as? HeaderView else { return UICollectionReusableView() }
+        headerView.viewModel = HeaderViewModel(section: indexPath.section)
+        
+        return headerView
     }
 }
