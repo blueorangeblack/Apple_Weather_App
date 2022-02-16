@@ -26,8 +26,6 @@ class MainViewController: UIViewController {
     
     // MARK: - Properties
     
-    private let toolbar = UIToolbar()
-    
     private lazy var pageControl: UIPageControl = {
         let control = UIPageControl()
         control.currentPage = 0
@@ -82,16 +80,23 @@ class MainViewController: UIViewController {
         navigationController?.toolbar.tintColor = .white
         navigationController?.toolbar.barStyle = .black
         navigationController?.toolbar.isTranslucent = true
+
+        let mapButton = UIBarButtonItem(image: (UIImage(systemName: "map")), style: .plain, target: self, action: nil)
         
-        toolbarItems = [UIBarButtonItem(customView: pageControl)]
+        let pageControlButton = UIBarButtonItem(customView: pageControl)
         
-        addChild(pageViewController)
+        let listButton = UIBarButtonItem(image: (UIImage(systemName: "list.bullet")), style: .plain, target: self, action: #selector(listButtonTapped))
+       
+        let space = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        
+        toolbarItems = [mapButton, space, pageControlButton, space, listButton]
+        
         view.addSubview(pageViewController.view)
         NSLayoutConstraint.activate([
-            pageViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
-            pageViewController.view.topAnchor.constraint(equalTo: view.topAnchor, constant: 30),
-            pageViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
-            pageViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
+            pageViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            pageViewController.view.topAnchor.constraint(equalTo: view.topAnchor, constant: 60),
+            pageViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            pageViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
     
@@ -136,6 +141,12 @@ class MainViewController: UIViewController {
         pageViewController.setViewControllers([weatherViewControllers[nextPage]], direction: direction, animated: true, completion: nil)
         
         locationIndex = nextPage
+    }
+    
+    @objc func listButtonTapped(_ sender: UIBarButtonItem) {
+        let vc = UINavigationController(rootViewController: CityListViewController())
+        vc.modalPresentationStyle = .fullScreen
+        present(vc, animated: false, completion: nil)
     }
 }
 

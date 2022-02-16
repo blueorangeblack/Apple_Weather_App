@@ -22,7 +22,7 @@ class SuggestionViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        tableView.backgroundColor = .black
         tableView.register(SuggestionCell.self, forCellReuseIdentifier: reuseID)
     }
     
@@ -86,9 +86,14 @@ extension SuggestionViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseID, for: indexPath)
+        
+        var content = cell.defaultContentConfiguration()
         if let result = completerResults?[indexPath.row] {
-            cell.textLabel?.text = "\(result.title) \(result.subtitle)"
+            content.text = "\(result.title) \(result.subtitle)"
         }
+        content.textProperties.color = .white
+        cell.contentConfiguration = content
+        cell.backgroundColor = .black
         
         return cell
     }

@@ -46,7 +46,7 @@ class HourlyForecastCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5),
-            stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+            stackView.topAnchor.constraint(equalTo: self.topAnchor),
             stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5),
             stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5)
         ])

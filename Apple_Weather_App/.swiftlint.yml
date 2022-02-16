@@ -33,3 +33,6 @@ cyclomatic_complexity:
   
 identifier_name:
   min_length: 2
+  
+function_body_length:
+  warning: 50
