@@ -10,7 +10,7 @@ import UIKit
 
 private let reuseID = "CityWeatherListCell"
 
-class CityWeatherListViewController: UITableViewController {
+class CityWeatherListViewController: UIViewController {
     
     // MARK: - Properties
     
@@ -18,15 +18,20 @@ class CityWeatherListViewController: UITableViewController {
     
     private let userDefaultsManager = UserDefaultsManager()
     
-    private var cityWeatherList = [Weather]() {
-        didSet {
-            tableView.reloadData()
-        }
-    }
+    private var cityWeatherList = [Weather]()
     
     private var newCityWeatherController: UINavigationController?
     
     private var newCityWeather: Weather?
+    
+    private let tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.register(CityWeatherListCell.self, forCellReuseIdentifier: reuseID)
+        tableView.rowHeight = 125
+        tableView.backgroundColor = .black
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        return tableView
+    }()
     
     private lazy var searchController: UISearchController = {
         let sc = UISearchController(searchResultsController: suggestionViewController)
@@ -64,11 +69,18 @@ class CityWeatherListViewController: UITableViewController {
         navigationController?.navigationBar.barStyle = .black
         navigationItem.title = "날씨"
         
-        tableView.register(CityWeatherListCell.self, forCellReuseIdentifier: reuseID)
-        tableView.rowHeight = 125
-        tableView.backgroundColor = .black
+        tableView.dataSource = self
+        tableView.delegate = self
         
-        view.addSubview(suggestionViewController.view)
+        [tableView, suggestionViewController.view].forEach { view.addSubview($0) }
+        
+        NSLayoutConstraint.activate([
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
         suggestionViewController.view.frame = self.view.frame
         suggestionViewController.view.isHidden = true
     }
@@ -76,6 +88,7 @@ class CityWeatherListViewController: UITableViewController {
     private func fetchCityWeatherList() {
         weatherManager.fetchCityWeatherList { [weak self] cityWeatherList in
             self?.cityWeatherList = cityWeatherList
+            self?.tableView.reloadData()
         }
     }
     
@@ -165,6 +178,7 @@ class CityWeatherListViewController: UITableViewController {
         guard let newCityWeather = newCityWeather else { return }
         userDefaultsManager.addCity(newCityWeather.city)
         cityWeatherList.append(newCityWeather)
+        tableView.reloadData()
         dismissSuggestionAndResetSearchBar()
         dismissAndResetNewCityWeather()
     }
@@ -192,12 +206,12 @@ extension CityWeatherListViewController: UISearchBarDelegate {
 
 // MARK: - UITableViewDataSource
 
-extension CityWeatherListViewController {
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+extension CityWeatherListViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return cityWeatherList.count
     }
     
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: reuseID, for: indexPath) as? CityWeatherListCell else { return UITableViewCell() }
         cell.viewModel = CityWeatherListViewModel(weather: cityWeatherList[indexPath.row])
         
@@ -207,13 +221,33 @@ extension CityWeatherListViewController {
 
 // MARK: - UITableViewDelegate
 
-extension CityWeatherListViewController {
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+extension CityWeatherListViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
         if tableView == suggestionViewController.tableView,
            let suggestion = suggestionViewController.completerResults?[indexPath.row] {
             fetchWeather(for: suggestion)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath)
+    -> UISwipeActionsConfiguration? {
+        if tableView == self.tableView {
+            let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] _, _, completion in
+                let rowIndex = indexPath.row
+                self?.userDefaultsManager.removeCity(rowIndex)
+                self?.cityWeatherList.remove(at: rowIndex)
+                tableView.deleteRows(at: [indexPath], with: .fade)
+                completion(true)
+            }
+            deleteAction.image = UIImage(systemName: "trash.fill")
+            deleteAction.backgroundColor = .systemRed
+            let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+
+            return configuration
+        } else {
+            return nil
         }
     }
 }

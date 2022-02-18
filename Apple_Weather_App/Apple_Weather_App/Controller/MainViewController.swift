@@ -14,7 +14,7 @@ class MainViewController: UIViewController {
     private lazy var pageControl: UIPageControl = {
         let control = UIPageControl()
         control.currentPage = 0
-        control.numberOfPages = UserDefaultsManager.cities.count
+        control.numberOfPages = UserDefaultsManager.cities.isEmpty ? 1 : UserDefaultsManager.cities.count
         control.setIndicatorImage(UIImage(systemName: "location.fill"), forPage: 0)
         control.addTarget(self, action: #selector(pageControlTapped), for: .valueChanged)
         return control

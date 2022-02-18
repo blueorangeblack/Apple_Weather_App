@@ -73,11 +73,13 @@ class CityWeatherListCell: UITableViewCell {
         
         [backView, cityNameLabel, timeLabel, weatherDescriptionLabel, tempLabel, tempMaxMinLabel].forEach { contentView.addSubview($0) }
         
+        backView.setContentCompressionResistancePriority(UILayoutPriority(750), for: .vertical)
+        
         NSLayoutConstraint.activate([
-            backView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            backView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             backView.topAnchor.constraint(equalTo: topAnchor, constant: 5),
-            backView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            backView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+            backView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            backView.heightAnchor.constraint(equalToConstant: 115),
             
             cityNameLabel.topAnchor.constraint(equalTo: backView.topAnchor, constant: 15),
             cityNameLabel.leadingAnchor.constraint(equalTo: backView.leadingAnchor, constant: 15),

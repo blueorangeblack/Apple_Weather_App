@@ -20,6 +20,15 @@ struct UserDefaultsManager {
     
     func addCity(_ city: City) {
         UserDefaultsManager.cities.append(City(name: city.name, latitude: city.latitude, longitude: city.longitude))
+        saveCity()
+    }
+    
+    func removeCity(_ index: Int) {
+        UserDefaultsManager.cities.remove(at: index)
+        saveCity()
+    }
+    
+    private func saveCity() {
         UserDefaults.standard.set(try? JSONEncoder().encode(UserDefaultsManager.cities), forKey: UserDefaultsManager.citiesKey)
     }
 }
