@@ -10,7 +10,7 @@ import Foundation
 struct CurrentWeatherViewModel {
     let weather: Weather
     
-    var cityName: String { return weather.cityName }
+    var cityName: String { return weather.city.name }
     
     var temp: String { return weather.currentWeather.temp.tempString() }
     

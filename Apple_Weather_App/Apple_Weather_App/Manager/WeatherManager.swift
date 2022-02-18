@@ -14,23 +14,38 @@ struct WeatherManager {
         URLQueryItem(name: "units", value: "metric"),
         URLQueryItem(name: "appid", value: "0f158f76db5b186912f2139b8612082c")
     ]
-    let cityName: String
-    let latitude: Double
-    let longitude: Double
     
-    func fetchWeather(completion: @escaping (Weather) -> Void) {
+    func fetchCityWeatherList(completion: @escaping ([Weather]) -> Void) {
+        var cityWeatherList = [Weather]()
+        let dispatchGroup = DispatchGroup()
+       
+        UserDefaultsManager.cities.forEach {
+            dispatchGroup.enter()
+            fetchWeather(city: $0) { weather in
+                cityWeatherList.append(weather)
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            cityWeatherList.sort(by: citiesIndex)
+            completion(cityWeatherList)
+        }
+    }
+    
+    func fetchWeather(city: City, completion: @escaping (Weather) -> Void) {
         let dispatchGroup = DispatchGroup()
         var currentWeather: CurrentWeather?
         var forecast: Forecast?
         
         dispatchGroup.enter()
-        fetchCurrentWeather(latitude: latitude, longitude: longitude) { result in
+        fetchCurrentWeather(latitude: city.latitude, longitude: city.longitude) { result in
             currentWeather = result
             dispatchGroup.leave()
         }
         
         dispatchGroup.enter()
-        fetchForecast(latitude: latitude, longitude: longitude) { result in
+        fetchForecast(latitude: city.latitude, longitude: city.longitude) { result in
             forecast = result
             dispatchGroup.leave()
         }
@@ -38,7 +53,7 @@ struct WeatherManager {
         dispatchGroup.notify(queue: .main) {
             guard let currentWeather = currentWeather,
                   let forecast = forecast else { return }
-            let weather = Weather(cityName: cityName, currentWeather: currentWeather, forecast: forecast)
+            let weather = Weather(city: City(name: city.name, latitude: city.latitude, longitude: city.longitude), currentWeather: currentWeather, forecast: forecast)
             completion(weather)
         }
     }
@@ -114,5 +129,11 @@ struct WeatherManager {
             }
         }
         dataTask.resume()
+    }
+    
+    private func citiesIndex(w1: Weather, w2: Weather) -> Bool {
+        let w1Index: Int = UserDefaultsManager.cities.firstIndex(of: w1.city) ?? 0
+        let w2Index: Int = UserDefaultsManager.cities.firstIndex(of: w2.city) ?? 0
+        return w1Index < w2Index
     }
 }

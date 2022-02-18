@@ -8,7 +8,7 @@
 import Foundation
 
 struct Weather {
-    let cityName: String
+    let city: City
     let currentWeather: CurrentWeather
     let forecast: Forecast
 }

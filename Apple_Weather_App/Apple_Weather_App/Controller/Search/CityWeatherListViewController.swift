@@ -1,5 +1,5 @@
 //
-//  CityListViewController.swift
+//  CityWeatherListViewController.swift
 //  Apple_Weather_App
 //
 //  Created by Minju Lee on 2022/02/09.
@@ -8,11 +8,25 @@
 import MapKit
 import UIKit
 
-private let reuseID = "CityListCell"
+private let reuseID = "CityWeatherListCell"
 
-class CityListViewController: UITableViewController {
+class CityWeatherListViewController: UITableViewController {
     
     // MARK: - Properties
+    
+    private let weatherManager = WeatherManager()
+    
+    private let userDefaultsManager = UserDefaultsManager()
+    
+    private var cityWeatherList = [Weather]() {
+        didSet {
+            tableView.reloadData()
+        }
+    }
+    
+    private var newCityWeatherController: UINavigationController?
+    
+    private var newCityWeather: Weather?
     
     private lazy var searchController: UISearchController = {
         let sc = UISearchController(searchResultsController: suggestionViewController)
@@ -32,21 +46,12 @@ class CityListViewController: UITableViewController {
         return vc
     }()
     
-    private var newCityWeatherController: UINavigationController?
-    
-    private var newCityWeather: Weather?
-    
-    private lazy var cityWeatherList = [Weather]() {
-        didSet {
-            tableView.reloadData()
-        }
-    }
-    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
+        fetchCityWeatherList()
     }
     
     // MARK: - Helpers
@@ -54,14 +59,24 @@ class CityListViewController: UITableViewController {
     private func configure() {
         view.backgroundColor = .black
         navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.navigationBar.barStyle = .black
         navigationItem.title = "날씨"
         
-        tableView.register(CityListCell.self, forCellReuseIdentifier: reuseID)
+        tableView.register(CityWeatherListCell.self, forCellReuseIdentifier: reuseID)
+        tableView.rowHeight = 125
+        tableView.backgroundColor = .black
         
         view.addSubview(suggestionViewController.view)
         suggestionViewController.view.frame = self.view.frame
+        suggestionViewController.view.isHidden = true
+    }
+    
+    private func fetchCityWeatherList() {
+        weatherManager.fetchCityWeatherList { [weak self] cityWeatherList in
+            self?.cityWeatherList = cityWeatherList
+        }
     }
     
     private func fetchWeather(for suggestedCompletion: MKLocalSearchCompletion) {
@@ -75,15 +90,14 @@ class CityListViewController: UITableViewController {
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                 self?.present(alert, animated: true, completion: nil)
             } else {
-                let place = response?.mapItems.first
-//                print(place?.placemark.coordinate as Any)
-
-                guard let cityName = self?.getPlaceName(for: place),
-                      let latitude = place?.placemark.coordinate.latitude,
-                      let longitude = place?.placemark.coordinate.longitude else { return }
+                guard let place = response?.mapItems.first,
+                      let cityName = self?.getPlaceName(for: place) else { return }
+                let latitude = place.placemark.coordinate.latitude
+                let longitude = place.placemark.coordinate.longitude
                 
-                let weatherManager = WeatherManager(cityName: cityName, latitude: latitude, longitude: longitude)
-                weatherManager.fetchWeather { [weak self] weather in
+                let city = City(name: cityName, latitude: latitude, longitude: longitude)
+
+                self?.weatherManager.fetchWeather(city: city) { weather in
                     self?.newCityWeather = weather
                     self?.presentNewCityWeatherController()
                 }
@@ -91,15 +105,10 @@ class CityListViewController: UITableViewController {
         })
     }
     
-    private func getPlaceName(for place: MKMapItem?) -> String {
-        let locality = place?.placemark.locality
-        let name = place?.name
-        let subLocality = place?.placemark.subLocality
-//        print(locality)
-//        print(name)
-//        print(subLocality)
-//        print("==> \(locality ?? name ?? subLocality ?? "")")
-//        print("----------")
+    private func getPlaceName(for place: MKMapItem) -> String {
+        let locality = place.placemark.locality
+        let name = place.name
+        let subLocality = place.placemark.subLocality
         return locality ?? name ?? subLocality ?? ""
     }
     
@@ -119,9 +128,17 @@ class CityListViewController: UITableViewController {
         navBarAppearance.configureWithTransparentBackground()
         vc.navigationController?.navigationBar.standardAppearance = navBarAppearance
         vc.navigationController?.navigationBar.isTranslucent = false
+        vc.navigationController?.navigationBar.tintColor = .white
         vc.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "취소", style: .plain, target: self, action: #selector(cancelButtonTapped))
         vc.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "추가", style: .plain, target: self, action: #selector(addButtonTapped))
-
+        
+        let newCity = City(name: newCityWeather.city.name, latitude: newCityWeather.city.latitude, longitude: newCityWeather.city.longitude)
+        UserDefaultsManager.cities.forEach {
+            if $0 == newCity {
+                vc.navigationItem.rightBarButtonItem = nil
+            }
+        }
+        
         present(ncwc, animated: true, completion: nil)
     }
     
@@ -146,6 +163,7 @@ class CityListViewController: UITableViewController {
     
     @objc func addButtonTapped() {
         guard let newCityWeather = newCityWeather else { return }
+        userDefaultsManager.addCity(newCityWeather.city)
         cityWeatherList.append(newCityWeather)
         dismissSuggestionAndResetSearchBar()
         dismissAndResetNewCityWeather()
@@ -154,7 +172,7 @@ class CityListViewController: UITableViewController {
 
 // MARK: - UISearchBarDelegate
 
-extension CityListViewController: UISearchBarDelegate {
+extension CityWeatherListViewController: UISearchBarDelegate {
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         searchBar.setShowsCancelButton(true, animated: true)
     }
@@ -174,19 +192,14 @@ extension CityListViewController: UISearchBarDelegate {
 
 // MARK: - UITableViewDataSource
 
-extension CityListViewController {
+extension CityWeatherListViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return cityWeatherList.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseID, for: indexPath)
-        
-        var content = cell.defaultContentConfiguration()
-        content.text = cityWeatherList[indexPath.row].cityName
-        content.textProperties.color = .white
-        cell.contentConfiguration = content
-        cell.backgroundColor = .black
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: reuseID, for: indexPath) as? CityWeatherListCell else { return UITableViewCell() }
+        cell.viewModel = CityWeatherListViewModel(weather: cityWeatherList[indexPath.row])
         
         return cell
     }
@@ -194,7 +207,7 @@ extension CityListViewController {
 
 // MARK: - UITableViewDelegate
 
-extension CityListViewController {
+extension CityWeatherListViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         

@@ -16,7 +16,11 @@ class SuggestionViewController: UITableViewController {
     
     private var searchCompleter: MKLocalSearchCompleter?
     
-    var completerResults: [MKLocalSearchCompletion]?
+    var completerResults: [MKLocalSearchCompletion]? {
+        didSet {
+            tableView.reloadData()
+        }
+    }
     
     // MARK: - Lifecycle
     
@@ -41,14 +45,13 @@ class SuggestionViewController: UITableViewController {
     private func startProvidingCompletions() {
         searchCompleter = MKLocalSearchCompleter()
         searchCompleter?.delegate = self
-//        searchCompleter?.resultTypes = [.address, .pointOfInterest]
-//        searchCompleter?.pointOfInterestFilter = MKPointOfInterestFilter(including: [.airport])
         searchCompleter?.resultTypes = .address
         searchCompleter?.region = MKCoordinateRegion(MKMapRect.world)
     }
     
     private func stopProvidingCompletions() {
         searchCompleter = nil
+        completerResults = nil
     }
 }
 
@@ -67,7 +70,6 @@ extension SuggestionViewController: UISearchResultsUpdating {
 extension SuggestionViewController: MKLocalSearchCompleterDelegate {
     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
         completerResults = completer.results
-        tableView.reloadData()
     }
     
     func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
@@ -85,15 +87,10 @@ extension SuggestionViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseID, for: indexPath)
-        
-        var content = cell.defaultContentConfiguration()
-        if let result = completerResults?[indexPath.row] {
-            content.text = "\(result.title) \(result.subtitle)"
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: reuseID, for: indexPath) as? SuggestionCell else { return UITableViewCell() }
+        if let completerResult = completerResults?[indexPath.row] {
+            cell.viewModel = SuggestionViewModel(completerResult: completerResult)
         }
-        content.textProperties.color = .white
-        cell.contentConfiguration = content
-        cell.backgroundColor = .black
         
         return cell
     }

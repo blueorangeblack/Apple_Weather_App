@@ -6,30 +6,15 @@
 //
 
 import UIKit
-// UserDefaults sample
-struct City: Codable {
-    let name: String
-    let latitude: Double
-    let longitude: Double
-}
 
 class MainViewController: UIViewController {
-    // UserDefaults sample
-    var cities = [
-        City(name: "서울특별시", latitude: 37.5478, longitude: 126.941893),
-        City(name: "마포구", latitude: 37.5635, longitude: 126.9084),
-        City(name: "천안시", latitude: 36.8151, longitude: 127.1137),
-        City(name: "로스엔젤레스", latitude: 34.0533, longitude: -118.2423),
-        City(name: "파리", latitude: 48.8571, longitude: 2.3529),
-        City(name: "퀘벡", latitude: 53.2915896, longitude: -71.5164244)
-    ]
     
     // MARK: - Properties
     
     private lazy var pageControl: UIPageControl = {
         let control = UIPageControl()
         control.currentPage = 0
-        control.numberOfPages = 1
+        control.numberOfPages = UserDefaultsManager.cities.count
         control.setIndicatorImage(UIImage(systemName: "location.fill"), forPage: 0)
         control.addTarget(self, action: #selector(pageControlTapped), for: .valueChanged)
         return control
@@ -52,22 +37,7 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
-        fetchWeather()
-        // UserDefaults sample
-//        // 저장
-//        UserDefaults.standard.set(try? PropertyListEncoder().encode(self.cities), forKey: "cities")
-//
-//        // 불러오기
-//        guard let data = UserDefaults.standard.value(forKey: "cities") as? Data,
-//                  let cities2 = try? PropertyListDecoder().decode([City].self, from: data) else { return }
-//        print(cities2)
-//
-//        // 삭제
-//        cities.removeAll()
-//        UserDefaults.standard.set(try? PropertyListEncoder().encode(self.cities), forKey: "cities")
-//        guard let data = UserDefaults.standard.value(forKey: "cities") as? Data,
-//              let cities2 = try? PropertyListDecoder().decode([City].self, from: data) else { return }
-//        print(cities2)
+        fetchCityWeatherList()
     }
     
     // MARK: - Helpers
@@ -91,40 +61,25 @@ class MainViewController: UIViewController {
         
         toolbarItems = [mapButton, space, pageControlButton, space, listButton]
         
+        addChild(pageViewController)
         view.addSubview(pageViewController.view)
         NSLayoutConstraint.activate([
             pageViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             pageViewController.view.topAnchor.constraint(equalTo: view.topAnchor, constant: 60),
             pageViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            pageViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            pageViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
         ])
     }
     
-    private func fetchWeather() {
-//        let cityName = "마포구"
-//        let latitude = 37.5635684
-//        let longitude = 126.9084249
-//        let cityName = "동작구"
-//        let latitude = 37.5124519
-//        let longitude = 126.9394689
-        let cityName = "런던"
-        let latitude = 51.5033466
-        let longitude = -0.0793965
-//        let cityName = "퀘벡"
-//        let latitude = 53.2915896
-//        let longitude = -71.5164244
-//        let cityName = "브라질리아"
-//        let latitude = -15.7648084
-//        let longitude = -47.8878119
-        
-        let weatherManager = WeatherManager(cityName: cityName, latitude: latitude, longitude: longitude)
-        weatherManager.fetchWeather { [weak self] weather in
-            let weather = weather
-            let vc = WeatherViewController(weather: weather)
-            self?.weatherViewControllers.append(vc)
-            self?.pageControl.numberOfPages = self?.weatherViewControllers.count ?? 1
-            guard let vc = self?.weatherViewControllers[0] else { return }
-            self?.pageViewController.setViewControllers([vc], direction: .forward, animated: true, completion: nil)
+    private func fetchCityWeatherList() {
+        let weatherManager = WeatherManager()
+        weatherManager.fetchCityWeatherList { [weak self] cityWeatherList in
+            cityWeatherList.forEach {
+                let vc = WeatherViewController(weather: $0)
+                self?.weatherViewControllers.append(vc)
+                guard let wvc = self?.weatherViewControllers.first else { return }
+                self?.pageViewController.setViewControllers([wvc], direction: .forward, animated: true, completion: nil)
+            }
         }
     }
     
@@ -144,7 +99,7 @@ class MainViewController: UIViewController {
     }
     
     @objc func listButtonTapped(_ sender: UIBarButtonItem) {
-        let vc = UINavigationController(rootViewController: CityListViewController())
+        let vc = UINavigationController(rootViewController: CityWeatherListViewController())
         vc.modalPresentationStyle = .fullScreen
         present(vc, animated: false, completion: nil)
     }
