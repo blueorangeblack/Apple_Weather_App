@@ -28,7 +28,9 @@ class CityWeatherListViewController: UIViewController {
         let tableView = UITableView()
         tableView.register(CityWeatherListCell.self, forCellReuseIdentifier: reuseID)
         tableView.rowHeight = 125
-        tableView.backgroundColor = .black
+        tableView.backgroundColor = .systemBackground
+        tableView.showsVerticalScrollIndicator = false
+        tableView.separatorStyle = .none
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
@@ -45,10 +47,23 @@ class CityWeatherListViewController: UIViewController {
         return sc
     }()
     
-    private lazy var suggestionViewController: SuggestionViewController = {
-        let vc = SuggestionViewController()
-        vc.tableView.delegate = self
-        return vc
+    private lazy var suggestionViewController = SuggestionViewController()
+    
+    private lazy var rightBarButtonItem = UIBarButtonItem(title: nil, image: UIImage(systemName: "ellipsis.circle"), primaryAction: nil, menu: settingMenu)
+    
+    private lazy var settingMenu: UIMenu = {
+        let menu = UIMenu(image: nil, identifier: nil, options: [.displayInline], children: [
+            UIAction(title: "목록 편집", image: UIImage(systemName: "pencil"), handler: { [weak self] _ in
+                self?.setEditMode()
+            }),
+            UIAction(title: "섭씨", image: UIImage(named: "Celsius"), state: .on, handler: { _ in
+                print("섭씨")
+            }),
+            UIAction(title: "화씨", image: UIImage(named: "Fahrenheit"), state: .off, handler: { _ in
+                print("화씨")
+            })
+        ])
+        return menu
     }()
     
     // MARK: - Lifecycle
@@ -62,15 +77,18 @@ class CityWeatherListViewController: UIViewController {
     // MARK: - Helpers
     
     private func configure() {
-        view.backgroundColor = .black
+        view.backgroundColor = .systemBackground
+        
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationController?.navigationBar.prefersLargeTitles = true
-        navigationController?.navigationBar.barStyle = .black
         navigationItem.title = "날씨"
+        navigationItem.rightBarButtonItem = rightBarButtonItem
+        navigationItem.rightBarButtonItem?.tintColor = .white
         
         tableView.dataSource = self
         tableView.delegate = self
+        suggestionViewController.tableView.delegate = self
         
         [tableView, suggestionViewController.view].forEach { view.addSubview($0) }
         
@@ -83,6 +101,13 @@ class CityWeatherListViewController: UIViewController {
         
         suggestionViewController.view.frame = self.view.frame
         suggestionViewController.view.isHidden = true
+    }
+    
+    private func setEditMode() {
+        tableView.isEditing = true
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "완료", style: .plain, target: self, action: #selector(editDone))
+        navigationItem.rightBarButtonItem?.tintColor = .white
+        tableView.reloadData()
     }
     
     private func fetchCityWeatherList() {
@@ -155,14 +180,14 @@ class CityWeatherListViewController: UIViewController {
         present(ncwc, animated: true, completion: nil)
     }
     
-    func dismissAndResetNewCityWeather() {
+    private func dismissAndResetNewCityWeather() {
         guard let ncwc = newCityWeatherController else { return }
         ncwc.dismiss(animated: true)
         newCityWeatherController = nil
         newCityWeather = nil
     }
     
-    func dismissSuggestionAndResetSearchBar() {
+    private func dismissSuggestionAndResetSearchBar() {
         suggestionViewController.dismiss(animated: true, completion: nil)
         searchController.searchBar.text = nil
         searchController.searchBar.resignFirstResponder()
@@ -181,6 +206,12 @@ class CityWeatherListViewController: UIViewController {
         tableView.reloadData()
         dismissSuggestionAndResetSearchBar()
         dismissAndResetNewCityWeather()
+    }
+    
+    @objc func editDone() {
+        tableView.isEditing = false
+        navigationItem.rightBarButtonItem = rightBarButtonItem
+        tableView.reloadData()
     }
 }
 
@@ -213,9 +244,16 @@ extension CityWeatherListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: reuseID, for: indexPath) as? CityWeatherListCell else { return UITableViewCell() }
-        cell.viewModel = CityWeatherListViewModel(weather: cityWeatherList[indexPath.row])
+        cell.viewModel = CityWeatherListViewModel(weather: cityWeatherList[indexPath.row], isEditing: tableView.isEditing)
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        let movedObject = cityWeatherList[sourceIndexPath.row]
+        cityWeatherList.remove(at: sourceIndexPath.row)
+        cityWeatherList.insert(movedObject, at: destinationIndexPath.row)
+        userDefaultsManager.moveCity(sourceIndexPath: sourceIndexPath.row, destinationIndexPath: destinationIndexPath.row)
     }
 }
 

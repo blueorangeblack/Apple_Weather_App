@@ -26,7 +26,8 @@ class SuggestionViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.backgroundColor = .black
+        tableView.backgroundColor = .systemBackground
+        tableView.separatorStyle = .none
         tableView.register(SuggestionCell.self, forCellReuseIdentifier: reuseID)
     }
     

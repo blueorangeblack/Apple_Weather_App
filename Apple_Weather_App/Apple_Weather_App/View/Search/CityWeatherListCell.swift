@@ -15,6 +15,9 @@ class CityWeatherListCell: UITableViewCell {
         didSet { configure() }
     }
     
+    private var backViewLeadingConstraint: NSLayoutConstraint?
+    private var backViewTrailingConstraint: NSLayoutConstraint?
+    
     private let backView: UIView = {
         let view = UIView()
         view.backgroundColor = dailySkyBlue
@@ -69,16 +72,20 @@ class CityWeatherListCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
-        backgroundColor = .black
+        backgroundColor = .systemBackground
         
         [backView, cityNameLabel, timeLabel, weatherDescriptionLabel, tempLabel, tempMaxMinLabel].forEach { contentView.addSubview($0) }
         
         backView.setContentCompressionResistancePriority(UILayoutPriority(750), for: .vertical)
         
+        backViewLeadingConstraint = NSLayoutConstraint(item: backView, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 10)
+        backViewLeadingConstraint?.isActive = true
+
+        backViewTrailingConstraint = NSLayoutConstraint(item: backView, attribute: .trailing, relatedBy: .equal, toItem: self, attribute: .trailing, multiplier: 1.0, constant: -10)
+        backViewTrailingConstraint?.isActive = true
+        
         NSLayoutConstraint.activate([
-            backView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             backView.topAnchor.constraint(equalTo: topAnchor, constant: 5),
-            backView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             backView.heightAnchor.constraint(equalToConstant: 115),
             
             cityNameLabel.topAnchor.constraint(equalTo: backView.topAnchor, constant: 15),
@@ -88,7 +95,7 @@ class CityWeatherListCell: UITableViewCell {
             weatherDescriptionLabel.bottomAnchor.constraint(equalTo: backView.bottomAnchor, constant: -15),
             weatherDescriptionLabel.leadingAnchor.constraint(equalTo: cityNameLabel.leadingAnchor),
             
-            tempLabel.topAnchor.constraint(equalTo: cityNameLabel.topAnchor),
+            tempLabel.topAnchor.constraint(equalTo: cityNameLabel.topAnchor, constant: -7),
             tempLabel.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: -15),
             tempMaxMinLabel.bottomAnchor.constraint(equalTo: backView.bottomAnchor, constant: -15),
             tempMaxMinLabel.trailingAnchor.constraint(equalTo: tempLabel.trailingAnchor)
@@ -109,5 +116,25 @@ class CityWeatherListCell: UITableViewCell {
         weatherDescriptionLabel.text = viewModel.weatherDescription
         tempLabel.text = viewModel.temp
         tempMaxMinLabel.text = viewModel.tempMaxMin
+        
+        if viewModel.isEditing {
+            backViewLeadingConstraint?.isActive = false
+            backViewLeadingConstraint = nil
+            backViewLeadingConstraint = NSLayoutConstraint(item: backView, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 50)
+            backViewLeadingConstraint?.isActive = true
+            backViewTrailingConstraint?.isActive = false
+            backViewTrailingConstraint = nil
+            backViewTrailingConstraint = NSLayoutConstraint(item: backView, attribute: .trailing, relatedBy: .equal, toItem: self, attribute: .trailing, multiplier: 1.0, constant: -50)
+            backViewTrailingConstraint?.isActive = true
+        } else {
+            backViewLeadingConstraint?.isActive = false
+            backViewLeadingConstraint = nil
+            backViewLeadingConstraint = NSLayoutConstraint(item: backView, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 10)
+            backViewLeadingConstraint?.isActive = true
+            backViewTrailingConstraint?.isActive = false
+            backViewTrailingConstraint = nil
+            backViewTrailingConstraint = NSLayoutConstraint(item: backView, attribute: .trailing, relatedBy: .equal, toItem: self, attribute: .trailing, multiplier: 1.0, constant: -10)
+            backViewTrailingConstraint?.isActive = true
+        }
     }
 }

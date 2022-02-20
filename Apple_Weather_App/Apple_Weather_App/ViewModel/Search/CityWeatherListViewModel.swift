@@ -10,6 +10,8 @@ import Foundation
 struct CityWeatherListViewModel {
     let weather: Weather
     
+    let isEditing: Bool
+    
     var cityName: String { return weather.city.name }
     
     var time: String {

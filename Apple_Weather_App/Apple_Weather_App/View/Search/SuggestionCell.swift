@@ -34,6 +34,6 @@ class SuggestionCell: UITableViewCell {
         content.text = viewModel.result
         content.textProperties.color = .white
         contentConfiguration = content
-        backgroundColor = .black
+        backgroundColor = .systemBackground
     }
 }

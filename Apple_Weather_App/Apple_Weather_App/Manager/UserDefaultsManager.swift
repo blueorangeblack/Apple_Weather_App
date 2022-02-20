@@ -28,6 +28,13 @@ struct UserDefaultsManager {
         saveCity()
     }
     
+    func moveCity(sourceIndexPath: Int, destinationIndexPath: Int) {
+        let movedObject = UserDefaultsManager.cities[sourceIndexPath]
+        UserDefaultsManager.cities.remove(at: sourceIndexPath)
+        UserDefaultsManager.cities.insert(movedObject, at: destinationIndexPath)
+        saveCity()
+    }
+    
     private func saveCity() {
         UserDefaults.standard.set(try? JSONEncoder().encode(UserDefaultsManager.cities), forKey: UserDefaultsManager.citiesKey)
     }

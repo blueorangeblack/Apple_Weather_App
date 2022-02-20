@@ -28,7 +28,7 @@ struct WeatherManager {
         }
         
         dispatchGroup.notify(queue: .main) {
-            cityWeatherList.sort(by: citiesIndex)
+            cityWeatherList.sort(by: compareWithCitiesIndex)
             completion(cityWeatherList)
         }
     }
@@ -131,7 +131,7 @@ struct WeatherManager {
         dataTask.resume()
     }
     
-    private func citiesIndex(w1: Weather, w2: Weather) -> Bool {
+    private func compareWithCitiesIndex(w1: Weather, w2: Weather) -> Bool {
         let w1Index: Int = UserDefaultsManager.cities.firstIndex(of: w1.city) ?? 0
         let w2Index: Int = UserDefaultsManager.cities.firstIndex(of: w2.city) ?? 0
         return w1Index < w2Index
