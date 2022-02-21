@@ -55,23 +55,6 @@ class CityWeatherListViewController: UIViewController {
     
     private lazy var suggestionViewController = SuggestionViewController()
     
-    private lazy var rightBarButtonItem = UIBarButtonItem(title: nil, image: UIImage(systemName: "ellipsis.circle"), primaryAction: nil, menu: settingMenu)
-    
-    private lazy var settingMenu: UIMenu = {
-        let menu = UIMenu(image: nil, identifier: nil, options: [.displayInline], children: [
-            UIAction(title: "목록 편집", image: UIImage(systemName: "pencil"), handler: { [weak self] _ in
-                self?.setEditMode()
-            }),
-            UIAction(title: "섭씨", image: UIImage(named: "Celsius"), state: .on, handler: { _ in
-                print("섭씨")
-            }),
-            UIAction(title: "화씨", image: UIImage(named: "Fahrenheit"), state: .off, handler: { _ in
-                print("화씨")
-            })
-        ])
-        return menu
-    }()
-    
     weak var delegate: CityWeatherListViewControllerDelegate?
     
     // MARK: - Lifecycle
@@ -91,8 +74,8 @@ class CityWeatherListViewController: UIViewController {
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.title = "날씨"
-        navigationItem.rightBarButtonItem = rightBarButtonItem
-        navigationItem.rightBarButtonItem?.tintColor = .white
+        
+        configureRightBarButtonItem()
         
         tableView.dataSource = self
         tableView.delegate = self
@@ -111,6 +94,32 @@ class CityWeatherListViewController: UIViewController {
         
         suggestionViewController.view.frame = self.view.frame
         suggestionViewController.view.isHidden = true
+    }
+    
+    private func configureRightBarButtonItem() {
+        let rightBarButtonItem = UIBarButtonItem(title: nil, image: UIImage(systemName: "ellipsis.circle"), primaryAction: nil, menu: createMenu())
+        navigationItem.rightBarButtonItem = rightBarButtonItem
+        navigationItem.rightBarButtonItem?.tintColor = .white
+    }
+    
+    private func createMenu() -> UIMenu {
+        let menu = UIMenu(image: nil, identifier: nil, children: [
+            UIAction(title: "목록 편집", image: UIImage(systemName: "pencil"), handler: { [weak self] _ in
+                self?.setEditMode()
+            }),
+            UIAction(title: "섭씨", image: UIImage(named: "Celsius"), state: UserDefaultsManager.isFahrenheit ? .off : .on, handler: { [weak self] _ in
+                self?.userDefaultsManager.saveTempUnit(isFahrenheit: false)
+                self?.configureRightBarButtonItem()
+                self?.tableView.reloadData()
+            }),
+            UIAction(title: "화씨", image: UIImage(named: "Fahrenheit"), state: UserDefaultsManager.isFahrenheit ? .on : .off, handler: { [weak self] _ in
+                self?.userDefaultsManager.saveTempUnit(isFahrenheit: true)
+                self?.configureRightBarButtonItem()
+                self?.tableView.reloadData()
+            })
+        ])
+        
+        return menu
     }
     
     private func setEditMode() {
@@ -220,7 +229,7 @@ class CityWeatherListViewController: UIViewController {
     
     @objc func editDone() {
         tableView.isEditing = false
-        navigationItem.rightBarButtonItem = rightBarButtonItem
+        configureRightBarButtonItem()
         tableView.reloadData()
     }
 }

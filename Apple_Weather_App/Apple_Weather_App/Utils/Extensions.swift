@@ -11,7 +11,7 @@ extension Double {
     /// Double type의 온도를 String type으로 변환
     /// - Returns: 온도(°)
     func tempString() -> String {
-        return "\(String(Int(self)))°"
+        return UserDefaultsManager.isFahrenheit ? "\(String(Int(self * 9 / 5 + 32)))°" : "\(String(Int(self)))°"
     }
     
     /// 비와 관련된 id이고, 강수확률이 10%보다 높을 경우 10단위로 강수확률을 나타냄

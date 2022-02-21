@@ -10,6 +10,10 @@ import Foundation
 struct UserDefaultsManager {
     static var citiesKey = "cities"
     static var cities = [City]()
+    static var tempUnitKey = "tempUnit"
+    static var isFahrenheit = false
+    
+    // MARK: City
     
     static func getCities() {
         guard let data = UserDefaults.standard.value(forKey: citiesKey) as? Data,
@@ -37,5 +41,16 @@ struct UserDefaultsManager {
     
     private func saveCity() {
         UserDefaults.standard.set(try? JSONEncoder().encode(UserDefaultsManager.cities), forKey: UserDefaultsManager.citiesKey)
+    }
+    
+    // MARK: TempUnit
+    
+    static func getTempUnit() {
+        UserDefaultsManager.isFahrenheit = UserDefaults.standard.bool(forKey: UserDefaultsManager.tempUnitKey)
+    }
+    
+    func saveTempUnit(isFahrenheit: Bool) {
+        UserDefaultsManager.isFahrenheit = isFahrenheit
+        UserDefaults.standard.set(UserDefaultsManager.isFahrenheit, forKey: UserDefaultsManager.tempUnitKey)
     }
 }

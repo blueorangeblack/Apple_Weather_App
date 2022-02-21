@@ -18,6 +18,6 @@ struct CurrentWeatherViewModel {
     
     var tempMaxMin: String {
         let daily = weather.forecast.daily[0]
-        return "최고:\(daily.tempMax.tempString()) 최저:\(daily.tempMin.tempString())"
+        return "최고:\(daily.tempMax.tempString())  최저:\(daily.tempMin.tempString())"
     }
 }
