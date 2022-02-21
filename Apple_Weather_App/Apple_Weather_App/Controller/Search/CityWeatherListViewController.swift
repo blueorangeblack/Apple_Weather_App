@@ -10,6 +10,10 @@ import UIKit
 
 private let reuseID = "CityWeatherListCell"
 
+protocol CityWeatherListViewControllerDelegate: AnyObject {
+    func didSelectCity(cityWeatherList: [Weather], index: Int)
+}
+
 class CityWeatherListViewController: UIViewController {
     
     // MARK: - Properties
@@ -18,7 +22,8 @@ class CityWeatherListViewController: UIViewController {
     
     private let userDefaultsManager = UserDefaultsManager()
     
-    private var cityWeatherList = [Weather]()
+//    private var cityWeatherList = [Weather]()
+    var cityWeatherList = [Weather]()
     
     private var newCityWeatherController: UINavigationController?
     
@@ -67,12 +72,14 @@ class CityWeatherListViewController: UIViewController {
         return menu
     }()
     
+    weak var delegate: CityWeatherListViewControllerDelegate?
+    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
-        fetchCityWeatherList()
+//        fetchCityWeatherList()
     }
     
     // MARK: - Helpers
@@ -113,12 +120,12 @@ class CityWeatherListViewController: UIViewController {
         tableView.reloadData()
     }
     
-    private func fetchCityWeatherList() {
-        weatherManager.fetchCityWeatherList { [weak self] cityWeatherList in
-            self?.cityWeatherList = cityWeatherList
-            self?.tableView.reloadData()
-        }
-    }
+//    private func fetchCityWeatherList() {
+//        weatherManager.fetchCityWeatherList { [weak self] cityWeatherList in
+//            self?.cityWeatherList = cityWeatherList
+//            self?.tableView.reloadData()
+//        }
+//    }
     
     private func fetchWeather(for suggestedCompletion: MKLocalSearchCompletion) {
         let searchRequest = MKLocalSearch.Request(completion: suggestedCompletion)
@@ -269,6 +276,9 @@ extension CityWeatherListViewController: UITableViewDelegate {
         if tableView == suggestionViewController.tableView,
            let suggestion = suggestionViewController.completerResults?[indexPath.row] {
             fetchWeather(for: suggestion)
+        } else {
+            dismiss(animated: true, completion: nil)
+            delegate?.didSelectCity(cityWeatherList: cityWeatherList, index: indexPath.row)
         }
     }
     

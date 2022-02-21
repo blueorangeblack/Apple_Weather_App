@@ -32,6 +32,8 @@ class MainViewController: UIViewController {
     
     private var weatherViewControllers: [WeatherViewController] = []
     
+    private var cityWeatherList = [Weather]()
+    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -74,6 +76,7 @@ class MainViewController: UIViewController {
     private func fetchCityWeatherList() {
         let weatherManager = WeatherManager()
         weatherManager.fetchCityWeatherList { [weak self] cityWeatherList in
+            self?.cityWeatherList = cityWeatherList
             cityWeatherList.forEach {
                 let vc = WeatherViewController(weather: $0)
                 self?.weatherViewControllers.append(vc)
@@ -81,6 +84,11 @@ class MainViewController: UIViewController {
                 self?.pageViewController.setViewControllers([wvc], direction: .forward, animated: true, completion: nil)
             }
         }
+    }
+    
+    private func changeCurrentPage(index: Int) {
+        pageControl.currentPage = index
+        locationIndex = index
     }
     
     // MARK: - Actions
@@ -99,9 +107,13 @@ class MainViewController: UIViewController {
     }
     
     @objc func listButtonTapped(_ sender: UIBarButtonItem) {
-        let vc = UINavigationController(rootViewController: CityWeatherListViewController())
+        let cwvc = CityWeatherListViewController()
+        let vc = UINavigationController(rootViewController: cwvc)
+        cwvc.delegate = self
+        cwvc.cityWeatherList = cityWeatherList
         vc.modalPresentationStyle = .fullScreen
-        present(vc, animated: false, completion: nil)
+        vc.modalTransitionStyle = .crossDissolve
+        present(vc, animated: true, completion: nil)
     }
 }
 
@@ -137,7 +149,32 @@ extension MainViewController: UIPageViewControllerDelegate {
               let vc = pageViewController.viewControllers?.first as? WeatherViewController,
               let index = weatherViewControllers.firstIndex(of: vc) else { return }
         
-        pageControl.currentPage = index
-        locationIndex = index
+        changeCurrentPage(index: index)
+    }
+}
+
+// MARK: - CityWeatherListViewControllerDelegate
+
+extension MainViewController: CityWeatherListViewControllerDelegate {
+    func didSelectCity(cityWeatherList: [Weather], index: Int) {
+        self.pageControl.numberOfPages = cityWeatherList.count
+        self.cityWeatherList = cityWeatherList
+        self.weatherViewControllers = []
+        
+        let dispatchGroup = DispatchGroup()
+        cityWeatherList.forEach {
+            dispatchGroup.enter()
+            let vc = WeatherViewController(weather: $0)
+            weatherViewControllers.append(vc)
+            guard let wvc = weatherViewControllers.first else { return }
+            pageViewController.setViewControllers([wvc], direction: .forward, animated: false, completion: nil)
+            dispatchGroup.leave()
+        }
+
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            guard let wvcs = self?.weatherViewControllers[index] else { return }
+            self?.pageViewController.setViewControllers([wvcs], direction: .forward, animated: false, completion: nil)
+            self?.changeCurrentPage(index: index)
+        }
     }
 }
