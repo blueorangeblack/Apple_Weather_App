@@ -31,6 +31,7 @@ class CityWeatherListViewController: UIViewController {
         tableView.backgroundColor = .systemBackground
         tableView.showsVerticalScrollIndicator = false
         tableView.separatorStyle = .none
+        tableView.dragInteractionEnabled = true
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
@@ -88,6 +89,8 @@ class CityWeatherListViewController: UIViewController {
         
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.dragDelegate = self
+        tableView.dropDelegate = self
         suggestionViewController.tableView.delegate = self
         
         [tableView, suggestionViewController.view].forEach { view.addSubview($0) }
@@ -287,5 +290,28 @@ extension CityWeatherListViewController: UITableViewDelegate {
         } else {
             return nil
         }
+    }
+}
+
+// MARK: - UITableViewDragDelegate
+
+extension CityWeatherListViewController: UITableViewDragDelegate {
+func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        return [UIDragItem(itemProvider: NSItemProvider())]
+    }
+}
+ 
+// MARK: - UITableViewDropDelegate
+
+extension CityWeatherListViewController: UITableViewDropDelegate {
+    func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
+    }
+    
+    func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
+        if session.localDragSession != nil {
+            return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
+        }
+        
+        return UITableViewDropProposal(operation: .cancel, intent: .unspecified)
     }
 }
