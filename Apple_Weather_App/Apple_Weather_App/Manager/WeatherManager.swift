@@ -15,10 +15,10 @@ struct WeatherManager {
         URLQueryItem(name: "appid", value: "0f158f76db5b186912f2139b8612082c")
     ]
     
-    func fetchCityWeatherList(completion: @escaping ([Weather]) -> Void) {
-        var cityWeatherList = [Weather]()
+    func fetchCityWeatherList(completion: @escaping ([Weather]?) -> Void) {
         let dispatchGroup = DispatchGroup()
-       
+        var cityWeatherList = [Weather]()
+        
         UserDefaultsManager.cities.forEach {
             dispatchGroup.enter()
             fetchWeather(city: $0) { weather in
@@ -29,7 +29,14 @@ struct WeatherManager {
         
         dispatchGroup.notify(queue: .main) {
             cityWeatherList.sort(by: compareWithCitiesIndex)
-            completion(cityWeatherList)
+            if let currentLoction = CurrentLocationManager.currentLocation {
+                fetchWeather(city: currentLoction) { weather in
+                    cityWeatherList.insert(weather, at: 0)
+                    completion(cityWeatherList)
+                }
+            } else {
+                completion(cityWeatherList)
+            }
         }
     }
     

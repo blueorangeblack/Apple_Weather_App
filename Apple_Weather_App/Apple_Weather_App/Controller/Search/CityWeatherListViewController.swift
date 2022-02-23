@@ -11,7 +11,7 @@ import UIKit
 private let reuseID = "CityWeatherListCell"
 
 protocol CityWeatherListViewControllerDelegate: AnyObject {
-    func didSelectCity(cityWeatherList: [Weather], index: Int)
+    func didSelectCity(cityWeatherList: [Weather], selectedIndex: Int)
 }
 
 class CityWeatherListViewController: UIViewController {
@@ -123,6 +123,8 @@ class CityWeatherListViewController: UIViewController {
     }
     
     private func setEditMode() {
+        guard !cityWeatherList.isEmpty else { return }
+        
         tableView.isEditing = true
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "완료", style: .plain, target: self, action: #selector(editDone))
         navigationItem.rightBarButtonItem?.tintColor = .white
@@ -258,21 +260,51 @@ extension CityWeatherListViewController: UISearchBarDelegate {
 
 extension CityWeatherListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return cityWeatherList.count
+        cityWeatherList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: reuseID, for: indexPath) as? CityWeatherListCell else { return UITableViewCell() }
-        cell.viewModel = CityWeatherListViewModel(weather: cityWeatherList[indexPath.row], isEditing: tableView.isEditing)
+        if CurrentLocationManager.currentLocation != nil && indexPath.row == 0 {
+            cell.viewModel = CityWeatherListViewModel(weather: cityWeatherList[indexPath.row], isEditing: false, isCurrentLocation: true)
+        } else {
+            cell.viewModel = CityWeatherListViewModel(weather: cityWeatherList[indexPath.row], isEditing: tableView.isEditing, isCurrentLocation: false)
+        }
         
         return cell
     }
     
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        if CurrentLocationManager.currentLocation != nil && indexPath.row == 0 {
+            return false
+        } else {
+            return true
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        if CurrentLocationManager.currentLocation != nil && indexPath.row == 0 {
+            return false
+        } else {
+            return true
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
+        if CurrentLocationManager.currentLocation != nil && proposedDestinationIndexPath.row == 0 {
+            return sourceIndexPath
+        } else {
+            return proposedDestinationIndexPath
+        }
+    }
+    
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        let movedObject = cityWeatherList[sourceIndexPath.row]
-        cityWeatherList.remove(at: sourceIndexPath.row)
-        cityWeatherList.insert(movedObject, at: destinationIndexPath.row)
-        userDefaultsManager.moveCity(sourceIndexPath: sourceIndexPath.row, destinationIndexPath: destinationIndexPath.row)
+        let sourceRow = sourceIndexPath.row
+        let destinationRow = destinationIndexPath.row
+        
+        let movedObject = cityWeatherList.remove(at: sourceRow)
+        cityWeatherList.insert(movedObject, at: destinationRow)
+        userDefaultsManager.moveCity(sourceIndex: sourceRow, destinationIndex: destinationRow)
     }
 }
 
@@ -287,7 +319,7 @@ extension CityWeatherListViewController: UITableViewDelegate {
             fetchWeather(for: suggestion)
         } else {
             dismiss(animated: true, completion: nil)
-            delegate?.didSelectCity(cityWeatherList: cityWeatherList, index: indexPath.row)
+            delegate?.didSelectCity(cityWeatherList: cityWeatherList, selectedIndex: indexPath.row)
         }
     }
     

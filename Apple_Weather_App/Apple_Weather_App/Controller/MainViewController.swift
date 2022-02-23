@@ -5,6 +5,7 @@
 //  Created by Minju Lee on 2022/02/08.
 //
 
+import CoreLocation
 import UIKit
 
 class MainViewController: UIViewController {
@@ -15,7 +16,6 @@ class MainViewController: UIViewController {
         let control = UIPageControl()
         control.currentPage = 0
         control.numberOfPages = UserDefaultsManager.cities.isEmpty ? 1 : UserDefaultsManager.cities.count
-        control.setIndicatorImage(UIImage(systemName: "location.fill"), forPage: 0)
         control.addTarget(self, action: #selector(pageControlTapped), for: .valueChanged)
         return control
     }()
@@ -38,13 +38,14 @@ class MainViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureUI()
+        CurrentLocationManager.manager.delegate = self
+        configure()
         fetchCityWeatherList()
     }
     
     // MARK: - Helpers
     
-    private func configureUI() {
+    private func configure() {
         view.backgroundColor = dailySkyBlue
         
         navigationController?.isNavigationBarHidden = true
@@ -52,16 +53,8 @@ class MainViewController: UIViewController {
         navigationController?.toolbar.tintColor = .white
         navigationController?.toolbar.barStyle = .black
         navigationController?.toolbar.isTranslucent = true
-
-        let mapButton = UIBarButtonItem(image: (UIImage(systemName: "map")), style: .plain, target: self, action: nil)
         
-        let pageControlButton = UIBarButtonItem(customView: pageControl)
-        
-        let listButton = UIBarButtonItem(image: (UIImage(systemName: "list.bullet")), style: .plain, target: self, action: #selector(listButtonTapped))
-       
-        let space = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        
-        toolbarItems = [mapButton, space, pageControlButton, space, listButton]
+        configureToolBarItems()
         
         addChild(pageViewController)
         view.addSubview(pageViewController.view)
@@ -73,17 +66,39 @@ class MainViewController: UIViewController {
         ])
     }
     
+    private func configureToolBarItems() {
+        let mapButton = UIBarButtonItem(image: (UIImage(systemName: "map")), style: .plain, target: self, action: nil)
+        
+        let pageControlButton = UIBarButtonItem(customView: pageControl)
+        
+        let listButton = UIBarButtonItem(image: (UIImage(systemName: "list.bullet")), style: .plain, target: self, action: #selector(listButtonTapped))
+        
+        let space = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        
+        toolbarItems = [mapButton, space, pageControlButton, space, listButton]
+    }
+    
     private func fetchCityWeatherList() {
+        guard CurrentLocationManager.manager.authorizationStatus != .notDetermined else { return }
+        
         let weatherManager = WeatherManager()
-        weatherManager.fetchCityWeatherList { [weak self] cityWeatherList in
-            self?.cityWeatherList = cityWeatherList
-            cityWeatherList.forEach {
-                let vc = WeatherViewController(weather: $0)
-                self?.weatherViewControllers.append(vc)
-                guard let wvc = self?.weatherViewControllers.first else { return }
-                self?.pageViewController.setViewControllers([wvc], direction: .forward, animated: true, completion: nil)
+        weatherManager.fetchCityWeatherList { [weak self] list in
+            if let list = list {
+                self?.cityWeatherList = list
+                list.forEach {
+                    let vc = WeatherViewController(weather: $0)
+                    self?.weatherViewControllers.append(vc)
+                    guard let wvc = self?.weatherViewControllers.first else { return }
+                    self?.pageViewController.setViewControllers([wvc], direction: .forward, animated: true, completion: nil)
+                }
             }
         }
+        
+        if CurrentLocationManager.currentLocation != nil {
+            pageControl.setIndicatorImage(UIImage(systemName: "location.fill"), forPage: 0)
+            pageControl.numberOfPages = UserDefaultsManager.cities.count + 1
+        }
+        configureToolBarItems()
     }
     
     private func changeCurrentPage(index: Int) {
@@ -156,7 +171,7 @@ extension MainViewController: UIPageViewControllerDelegate {
 // MARK: - CityWeatherListViewControllerDelegate
 
 extension MainViewController: CityWeatherListViewControllerDelegate {
-    func didSelectCity(cityWeatherList: [Weather], index: Int) {
+    func didSelectCity(cityWeatherList: [Weather], selectedIndex: Int) {
         self.pageControl.numberOfPages = cityWeatherList.count
         self.cityWeatherList = cityWeatherList
         self.weatherViewControllers = []
@@ -172,9 +187,28 @@ extension MainViewController: CityWeatherListViewControllerDelegate {
         }
 
         dispatchGroup.notify(queue: .main) { [weak self] in
-            guard let wvcs = self?.weatherViewControllers[index] else { return }
+            guard let wvcs = self?.weatherViewControllers[selectedIndex] else { return }
             self?.pageViewController.setViewControllers([wvcs], direction: .forward, animated: false, completion: nil)
-            self?.changeCurrentPage(index: index)
+            self?.changeCurrentPage(index: selectedIndex)
+        }
+    }
+}
+
+// MARK: - CLLocationManagerDelegate
+
+extension MainViewController: CLLocationManagerDelegate {
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        switch manager.authorizationStatus {
+        case .restricted, .denied:
+            fetchCityWeatherList()
+        case .authorizedAlways, .authorizedWhenInUse:
+            CurrentLocationManager.getCurrentLocation { [weak self] result in
+                if result {
+                    self?.fetchCityWeatherList()
+                }
+            }
+        default:
+            return
         }
     }
 }

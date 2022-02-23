@@ -18,7 +18,7 @@ struct UserDefaultsManager {
     static func getCities() {
         guard let data = UserDefaults.standard.value(forKey: citiesKey) as? Data,
               let cities = try? JSONDecoder().decode([City].self, from: data) else { return }
-
+        
         UserDefaultsManager.cities = cities
     }
     
@@ -28,14 +28,27 @@ struct UserDefaultsManager {
     }
     
     func removeCity(_ index: Int) {
+        var index = index
+        
+        if CurrentLocationManager.currentLocation != nil {
+            index -= 1
+        }
+        
         UserDefaultsManager.cities.remove(at: index)
         saveCity()
     }
     
-    func moveCity(sourceIndexPath: Int, destinationIndexPath: Int) {
-        let movedObject = UserDefaultsManager.cities[sourceIndexPath]
-        UserDefaultsManager.cities.remove(at: sourceIndexPath)
-        UserDefaultsManager.cities.insert(movedObject, at: destinationIndexPath)
+    func moveCity(sourceIndex: Int, destinationIndex: Int) {
+        var sourceIndex = sourceIndex
+        var destinationIndex = destinationIndex
+        
+        if CurrentLocationManager.currentLocation != nil {
+            sourceIndex -= 1
+            destinationIndex -= 1
+        }
+        
+        let movedObject = UserDefaultsManager.cities.remove(at: sourceIndex)
+        UserDefaultsManager.cities.insert(movedObject, at: destinationIndex)
         saveCity()
     }
     
