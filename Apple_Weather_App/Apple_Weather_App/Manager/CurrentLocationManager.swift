@@ -21,10 +21,8 @@ struct CurrentLocationManager {
         switch manager.authorizationStatus {
         case .notDetermined:
             CurrentLocationManager.manager.requestWhenInUseAuthorization()
-        case .restricted, .denied:
+        case .restricted, .denied, .authorizedAlways, .authorizedWhenInUse:
             return
-        case .authorizedAlways, .authorizedWhenInUse:
-            getCurrentLocation { _ in }
         @unknown default:
             print("AuthorizationStatus unknown case")
         }

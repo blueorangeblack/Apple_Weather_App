@@ -17,6 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         window?.rootViewController = UINavigationController(rootViewController: MainViewController())
 //        window?.rootViewController = UINavigationController(rootViewController: CityListViewController())
+//        window?.rootViewController = MapViewController()
         window?.makeKeyAndVisible()
     }
 

@@ -67,7 +67,7 @@ class MainViewController: UIViewController {
     }
     
     private func configureToolBarItems() {
-        let mapButton = UIBarButtonItem(image: (UIImage(systemName: "map")), style: .plain, target: self, action: nil)
+        let mapButton = UIBarButtonItem(image: (UIImage(systemName: "map")), style: .plain, target: self, action: #selector(mapButtonTapped))
         
         let pageControlButton = UIBarButtonItem(customView: pageControl)
         
@@ -81,24 +81,35 @@ class MainViewController: UIViewController {
     private func fetchCityWeatherList() {
         guard CurrentLocationManager.manager.authorizationStatus != .notDetermined else { return }
         
-        let weatherManager = WeatherManager()
-        weatherManager.fetchCityWeatherList { [weak self] list in
-            if let list = list {
-                self?.cityWeatherList = list
-                list.forEach {
-                    let vc = WeatherViewController(weather: $0)
-                    self?.weatherViewControllers.append(vc)
-                    guard let wvc = self?.weatherViewControllers.first else { return }
-                    self?.pageViewController.setViewControllers([wvc], direction: .forward, animated: true, completion: nil)
+        if CurrentLocationManager.manager.authorizationStatus == .authorizedAlways ||
+            CurrentLocationManager.manager.authorizationStatus == .authorizedWhenInUse {
+            CurrentLocationManager.getCurrentLocation { [weak self] result in
+                if result {
+                    fetch()
+                    self?.pageControl.setIndicatorImage(UIImage(systemName: "location.fill"), forPage: 0)
+                    self?.pageControl.numberOfPages = UserDefaultsManager.cities.count + 1
+                    self?.configureToolBarItems()
+                }
+            }
+        } else {
+            fetch()
+            configureToolBarItems()
+        }
+        
+        func fetch() {
+            let weatherManager = WeatherManager()
+            weatherManager.fetchCityWeatherList { [weak self] list in
+                if let list = list {
+                    self?.cityWeatherList = list
+                    list.forEach {
+                        let vc = WeatherViewController(weather: $0)
+                        self?.weatherViewControllers.append(vc)
+                        guard let wvc = self?.weatherViewControllers.first else { return }
+                        self?.pageViewController.setViewControllers([wvc], direction: .forward, animated: true, completion: nil)
+                    }
                 }
             }
         }
-        
-        if CurrentLocationManager.currentLocation != nil {
-            pageControl.setIndicatorImage(UIImage(systemName: "location.fill"), forPage: 0)
-            pageControl.numberOfPages = UserDefaultsManager.cities.count + 1
-        }
-        configureToolBarItems()
     }
     
     private func changeCurrentPage(index: Int) {
@@ -107,6 +118,13 @@ class MainViewController: UIViewController {
     }
     
     // MARK: - Actions
+    
+    @objc func mapButtonTapped() {
+        let mvc = MapViewController()
+        mvc.cityWeatherList = cityWeatherList
+        mvc.modalPresentationStyle = .fullScreen
+        present(mvc, animated: true, completion: nil)
+    }
     
     @objc func pageControlTapped(_ sender: UIPageControl) {
         let nextPage = sender.currentPage
@@ -121,7 +139,7 @@ class MainViewController: UIViewController {
         locationIndex = nextPage
     }
     
-    @objc func listButtonTapped(_ sender: UIBarButtonItem) {
+    @objc func listButtonTapped() {
         let cwvc = CityWeatherListViewController()
         let vc = UINavigationController(rootViewController: cwvc)
         cwvc.delegate = self
@@ -188,6 +206,7 @@ extension MainViewController: CityWeatherListViewControllerDelegate {
 
         dispatchGroup.notify(queue: .main) { [weak self] in
             guard let wvcs = self?.weatherViewControllers[selectedIndex] else { return }
+            self?.configureToolBarItems()
             self?.pageViewController.setViewControllers([wvcs], direction: .forward, animated: false, completion: nil)
             self?.changeCurrentPage(index: selectedIndex)
         }

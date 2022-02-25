@@ -11,6 +11,7 @@
 		1205CA3427B79BA00053DA77 /* HourlyForecastViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1205CA3327B79BA00053DA77 /* HourlyForecastViewModel.swift */; };
 		1205CA3727B7A9300053DA77 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1205CA3627B7A9300053DA77 /* Extensions.swift */; };
 		1205CA3927B80D2F0053DA77 /* DailyForecastViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1205CA3827B80D2F0053DA77 /* DailyForecastViewModel.swift */; };
+		1219BB6927C75DBE003CF65C /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1219BB6827C75DBE003CF65C /* MapViewController.swift */; };
 		1221B55927B8A12D00FD128D /* WeatherDetailCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1221B55827B8A12D00FD128D /* WeatherDetailCell.swift */; };
 		1221B55C27B8A40000FD128D /* IconAndPopStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1221B55B27B8A40000FD128D /* IconAndPopStackView.swift */; };
 		122FEE3027B3BD5300805B18 /* CityWeatherListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 122FEE2F27B3BD5300805B18 /* CityWeatherListViewController.swift */; };
@@ -50,6 +51,7 @@
 		1205CA3327B79BA00053DA77 /* HourlyForecastViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HourlyForecastViewModel.swift; sourceTree = "<group>"; };
 		1205CA3627B7A9300053DA77 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		1205CA3827B80D2F0053DA77 /* DailyForecastViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyForecastViewModel.swift; sourceTree = "<group>"; };
+		1219BB6827C75DBE003CF65C /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		1221B55827B8A12D00FD128D /* WeatherDetailCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherDetailCell.swift; sourceTree = "<group>"; };
 		1221B55B27B8A40000FD128D /* IconAndPopStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconAndPopStackView.swift; sourceTree = "<group>"; };
 		122FEE2F27B3BD5300805B18 /* CityWeatherListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityWeatherListViewController.swift; sourceTree = "<group>"; };
@@ -114,6 +116,14 @@
 				126747B527BB222900E122AA /* Constants.swift */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		1219BB6527C73642003CF65C /* Map */ = {
+			isa = PBXGroup;
+			children = (
+				1219BB6827C75DBE003CF65C /* MapViewController.swift */,
+			);
+			path = Map;
 			sourceTree = "<group>";
 		};
 		1221B55A27B8A3BC00FD128D /* CustomView */ = {
@@ -258,6 +268,7 @@
 				12F3106127B272E90094C9A4 /* MainViewController.swift */,
 				122FEE3827B3BEE800805B18 /* Weather */,
 				122FEE3927B3BEF600805B18 /* Search */,
+				1219BB6527C73642003CF65C /* Map */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -410,6 +421,7 @@
 				12B7292C27C3D57B00D72E40 /* CurrentLocationManager.swift in Sources */,
 				127392F127B4E4150023CDD9 /* WeatherManager.swift in Sources */,
 				127BF70527B56DDA00D33E4A /* DailyForecastCell.swift in Sources */,
+				1219BB6927C75DBE003CF65C /* MapViewController.swift in Sources */,
 				1284F09727BA4857006558BC /* RoundedBackgroundView.swift in Sources */,
 				127392EE27B4DCFF0023CDD9 /* Forecast.swift in Sources */,
 				1205CA3227B798D30053DA77 /* CurrentWeatherViewModel.swift in Sources */,
