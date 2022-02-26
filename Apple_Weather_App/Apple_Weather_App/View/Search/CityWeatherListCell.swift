@@ -20,7 +20,6 @@ class CityWeatherListCell: UITableViewCell {
     
     private let backView: UIView = {
         let view = UIView()
-        view.backgroundColor = dailySkyBlue
         view.layer.cornerRadius = 13
         view.layer.masksToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -76,8 +75,6 @@ class CityWeatherListCell: UITableViewCell {
         
         [backView, cityNameLabel, timeLabel, weatherDescriptionLabel, tempLabel, tempMaxMinLabel].forEach { contentView.addSubview($0) }
         
-        backView.setContentCompressionResistancePriority(UILayoutPriority(750), for: .vertical)
-        
         backViewLeadingConstraint = NSLayoutConstraint(item: backView, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 10)
         backViewLeadingConstraint?.isActive = true
 
@@ -110,7 +107,8 @@ class CityWeatherListCell: UITableViewCell {
     
     func configure() {
         guard let viewModel = viewModel else { return }
-
+        
+        backView.backgroundColor = viewModel.weatherColor
         cityNameLabel.text = viewModel.cityName
         timeLabel.text = viewModel.time
         weatherDescriptionLabel.text = viewModel.weatherDescription

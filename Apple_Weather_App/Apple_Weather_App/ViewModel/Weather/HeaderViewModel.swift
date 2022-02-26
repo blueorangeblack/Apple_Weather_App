@@ -5,12 +5,13 @@
 //  Created by Minju Lee on 2022/02/14.
 //
 
-import Foundation
+import UIKit
 
 struct HeaderViewModel {
-    var title: String
+    let title: String
+    let weatherColor: UIColor
     
-    init(section: Int) {
+    init(section: Int, weatherColor: UIColor) {
         if section == 1 {
             self.title = "시간별 일기예보"
         } else if section == 2 {
@@ -18,5 +19,7 @@ struct HeaderViewModel {
         } else {
             self.title = ""
         }
+        
+        self.weatherColor = weatherColor
     }
 }

@@ -179,7 +179,7 @@ class CityWeatherListViewController: UIViewController {
         
         guard let ncwc = newCityWeatherController else { return }
         
-        ncwc.view.backgroundColor = dailySkyBlue
+        ncwc.view.backgroundColor = newCityWeather.currentWeather.id.weatherColor()
         ncwc.view.addSubview(vc.view)
         vc.view.frame = ncwc.view.frame
         

@@ -34,7 +34,6 @@ class HeaderView: UICollectionReusableView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = dailySkyBlue
         
         [backView, titleLabel].forEach { addSubview($0) }
         
@@ -66,6 +65,7 @@ class HeaderView: UICollectionReusableView {
     func configure() {
         guard let viewModel = viewModel else { return }
         
+        backgroundColor = viewModel.weatherColor
         self.titleLabel.text = viewModel.title
     }
 }

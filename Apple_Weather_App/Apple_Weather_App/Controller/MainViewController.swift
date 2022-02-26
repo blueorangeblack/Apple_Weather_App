@@ -46,7 +46,7 @@ class MainViewController: UIViewController {
     // MARK: - Helpers
     
     private func configure() {
-        view.backgroundColor = dailySkyBlue
+        view.backgroundColor = d0102
         
         navigationController?.isNavigationBarHidden = true
         navigationController?.isToolbarHidden = false

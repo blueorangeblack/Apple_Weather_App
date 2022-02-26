@@ -69,4 +69,24 @@ extension String {
         
         return UIImage(systemName: imageName)?.withRenderingMode(.alwaysOriginal) ?? UIImage()
     }
+    
+    /// weatherID에 해당하는 날씨 색
+    /// - Returns: 날씨 색
+    func weatherColor() -> UIColor {
+        switch self {
+        case "01d", "02d": return d0102
+        case "01n", "02n": return n0102
+        case "03d": return d03
+        case "03n": return n03
+        case "04d": return d04
+        case "04n": return n04
+        case "09d", "10d", "11d": return d091011
+        case "09n", "10n", "11n": return n091011
+        case "13d": return d13
+        case "13n": return n13
+        case "50d": return d50
+        case "50n": return n50
+        default: return d0102
+        }
+    }
 }

@@ -5,28 +5,21 @@
 //  Created by Minju Lee on 2022/02/17.
 //
 
-import Foundation
+import UIKit
 
 struct CityWeatherListViewModel {
     let weather: Weather
-    
-    var isEditing: Bool
-    
-    var cityName: String
-    
-    var time: String
-    
-    var weatherDescription: String { return weather.currentWeather.id.weatherDescription() }
-    
-    var temp: String { return weather.currentWeather.temp.tempString() }
-    
-    var tempMaxMin: String {
-        let daily = weather.forecast.daily[0]
-        return "최고:\(daily.tempMax.tempString()) 최저:\(daily.tempMin.tempString())"
-    }
+    let weatherColor: UIColor
+    let isEditing: Bool
+    let cityName: String
+    let time: String
+    let weatherDescription: String
+    let temp: String
+    let tempMaxMin: String
     
     init(weather: Weather, isEditing: Bool, isCurrentLocation: Bool) {
         self.weather = weather
+        self.weatherColor = weather.currentWeather.id.weatherColor()
         self.isEditing = isEditing
         
         if isCurrentLocation {
@@ -42,5 +35,11 @@ struct CityWeatherListViewModel {
             
             self.time = dateFormatter.string(from: Date())
         }
+        
+        self.weatherDescription = weather.currentWeather.id.weatherDescription()
+        self.temp = weather.currentWeather.temp.tempString()
+
+        let daily = weather.forecast.daily[0]
+        self.tempMaxMin = "최고:\(daily.tempMax.tempString()) 최저:\(daily.tempMin.tempString())"
     }
 }

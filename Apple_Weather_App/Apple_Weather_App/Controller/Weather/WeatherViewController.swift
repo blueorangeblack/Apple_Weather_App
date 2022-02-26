@@ -70,6 +70,11 @@ class WeatherViewController: UIViewController {
         ])
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.parent?.parent?.view.backgroundColor = weather.currentWeather.id.weatherColor()
+    }
+    
     // MARK: - Helpers
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
@@ -173,7 +178,7 @@ extension WeatherViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerView, for: indexPath) as? HeaderView else { return UICollectionReusableView() }
-        headerView.viewModel = HeaderViewModel(section: indexPath.section)
+        headerView.viewModel = HeaderViewModel(section: indexPath.section, weatherColor: weather.currentWeather.id.weatherColor())
         
         return headerView
     }
