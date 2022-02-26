@@ -44,7 +44,7 @@ class WeatherDetailCell: UICollectionViewCell {
         return label
     }()
     
-    private let subdetailLabel: UILabel = {
+    private let subDetailLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 17)
         label.textColor = .white
@@ -57,7 +57,7 @@ class WeatherDetailCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        let labelStackView = UIStackView(arrangedSubviews: [detailLabel, subdetailLabel])
+        let labelStackView = UIStackView(arrangedSubviews: [detailLabel, subDetailLabel])
         labelStackView.axis = .vertical
         labelStackView.alignment = .leading
         labelStackView.distribution = .fillProportionally
@@ -101,6 +101,6 @@ class WeatherDetailCell: UICollectionViewCell {
         
         titleLabel.text = viewModel.title
         detailLabel.text = viewModel.detail
-        subdetailLabel.text = viewModel.subdetail
+        subDetailLabel.text = viewModel.subDetail
     }
 }
