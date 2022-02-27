@@ -132,9 +132,18 @@ class CityWeatherListViewController: UIViewController {
     }
     
 //    private func fetchCityWeatherList() {
-//        weatherManager.fetchCityWeatherList { [weak self] cityWeatherList in
-//            self?.cityWeatherList = cityWeatherList
-//            self?.tableView.reloadData()
+//        weatherManager.fetchCityWeatherList { [weak self] result in
+//            DispatchQueue.main.async {
+//                switch result {
+//                case .failure(let error):
+//                    self?.showAlert(title: error.title, message: error.message)
+//                case .success(let list):
+//                    if let list = list {
+//                        self?.cityWeatherList = list
+//                        self?.tableView.reloadData()
+//                    }
+//                }
+//            }
 //        }
 //    }
     
@@ -145,9 +154,7 @@ class CityWeatherListViewController: UIViewController {
         
         search.start(completionHandler: { [weak self] response, error in
             if let error = error {
-                let alert = UIAlertController(title: "Could not find any places.", message: error.localizedDescription, preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                self?.present(alert, animated: true, completion: nil)
+                self?.showAlert(title: "Could not find any places.", message: error.localizedDescription)
             } else {
                 guard let place = response?.mapItems.first,
                       let cityName = self?.getPlaceName(for: place) else { return }
@@ -155,10 +162,17 @@ class CityWeatherListViewController: UIViewController {
                 let longitude = place.placemark.coordinate.longitude
                 
                 let city = City(name: cityName, latitude: latitude, longitude: longitude)
-
-                self?.weatherManager.fetchWeather(city: city) { weather in
-                    self?.newCityWeather = weather
-                    self?.presentNewCityWeatherController()
+                
+                self?.weatherManager.fetchWeather(city: city) { result in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .failure(let error):
+                            self?.showAlert(title: error.title, message: error.message)
+                        case .success(let weather):
+                            self?.newCityWeather = weather
+                        }
+                        self?.presentNewCityWeatherController()
+                    }
                 }
             }
         })

@@ -98,14 +98,21 @@ class MainViewController: UIViewController {
         
         func fetch() {
             let weatherManager = WeatherManager()
-            weatherManager.fetchCityWeatherList { [weak self] list in
-                if let list = list {
-                    self?.cityWeatherList = list
-                    list.forEach {
-                        let vc = WeatherViewController(weather: $0)
-                        self?.weatherViewControllers.append(vc)
-                        guard let wvc = self?.weatherViewControllers.first else { return }
-                        self?.pageViewController.setViewControllers([wvc], direction: .forward, animated: true, completion: nil)
+            weatherManager.fetchCityWeatherList { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .failure(let error):
+                        self?.showAlert(title: error.title, message: error.message)
+                    case .success(let list):
+                        if let list = list {
+                            self?.cityWeatherList = list
+                            list.forEach {
+                                let vc = WeatherViewController(weather: $0)
+                                self?.weatherViewControllers.append(vc)
+                                guard let wvc = self?.weatherViewControllers.first else { return }
+                                self?.pageViewController.setViewControllers([wvc], direction: .forward, animated: true, completion: nil)
+                            }
+                        }
                     }
                 }
             }
