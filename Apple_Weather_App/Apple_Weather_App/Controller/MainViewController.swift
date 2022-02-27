@@ -134,9 +134,11 @@ class MainViewController: UIViewController {
     }
     
     @objc func pageControlTapped(_ sender: UIPageControl) {
+        guard !weatherViewControllers.isEmpty else { return }
+        
         let nextPage = sender.currentPage
         var direction: UIPageViewController.NavigationDirection = .forward
-
+        
         if locationIndex > nextPage {
             direction = .reverse
         }
