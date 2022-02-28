@@ -15,7 +15,6 @@ class MainViewController: UIViewController {
     private lazy var pageControl: UIPageControl = {
         let control = UIPageControl()
         control.currentPage = 0
-        control.numberOfPages = UserDefaultsManager.cities.isEmpty ? 1 : UserDefaultsManager.cities.count
         control.addTarget(self, action: #selector(pageControlTapped), for: .valueChanged)
         return control
     }()
@@ -69,6 +68,18 @@ class MainViewController: UIViewController {
     private func configureToolBarItems() {
         let mapButton = UIBarButtonItem(image: (UIImage(systemName: "map")), style: .plain, target: self, action: #selector(mapButtonTapped))
         
+        if CurrentLocationManager.manager.authorizationStatus == .notDetermined || UserDefaultsManager.cities.isEmpty {
+            pageControl.numberOfPages = 1
+        } else if CurrentLocationManager.currentLocation == nil {
+            pageControl.numberOfPages = UserDefaultsManager.cities.count
+        } else {
+            pageControl.numberOfPages = UserDefaultsManager.cities.count + 1
+        }
+        
+        if CurrentLocationManager.currentLocation != nil {
+            pageControl.setIndicatorImage(UIImage(systemName: "location.fill"), forPage: 0)
+        }
+        
         let pageControlButton = UIBarButtonItem(customView: pageControl)
         
         let listButton = UIBarButtonItem(image: (UIImage(systemName: "list.bullet")), style: .plain, target: self, action: #selector(listButtonTapped))
@@ -83,17 +94,13 @@ class MainViewController: UIViewController {
         
         if CurrentLocationManager.manager.authorizationStatus == .authorizedAlways ||
             CurrentLocationManager.manager.authorizationStatus == .authorizedWhenInUse {
-            CurrentLocationManager.getCurrentLocation { [weak self] result in
+            CurrentLocationManager.getCurrentLocation { result in
                 if result {
                     fetch()
-                    self?.pageControl.setIndicatorImage(UIImage(systemName: "location.fill"), forPage: 0)
-                    self?.pageControl.numberOfPages = UserDefaultsManager.cities.count + 1
-                    self?.configureToolBarItems()
                 }
             }
         } else {
             fetch()
-            configureToolBarItems()
         }
         
         func fetch() {
@@ -113,6 +120,7 @@ class MainViewController: UIViewController {
                                 self?.pageViewController.setViewControllers([wvc], direction: .forward, animated: true, completion: nil)
                             }
                         }
+                        self?.configureToolBarItems()
                     }
                 }
             }
@@ -199,7 +207,6 @@ extension MainViewController: UIPageViewControllerDelegate {
 
 extension MainViewController: CityWeatherListViewControllerDelegate {
     func didSelectCity(cityWeatherList: [Weather], selectedIndex: Int) {
-        self.pageControl.numberOfPages = cityWeatherList.count
         self.cityWeatherList = cityWeatherList
         self.weatherViewControllers = []
         
