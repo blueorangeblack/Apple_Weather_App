@@ -8,7 +8,6 @@
 import UIKit
 
 struct CityWeatherListViewModel {
-    let weather: Weather
     let weatherColor: UIColor
     let isEditing: Bool
     let cityName: String
@@ -18,7 +17,6 @@ struct CityWeatherListViewModel {
     let tempMaxMin: String
     
     init(weather: Weather, isEditing: Bool, isCurrentLocation: Bool) {
-        self.weather = weather
         self.weatherColor = weather.currentWeather.id.weatherColor()
         self.isEditing = isEditing
         
@@ -32,13 +30,12 @@ struct CityWeatherListViewModel {
             dateFormatter.locale = Locale(identifier: "ko_KR")
             dateFormatter.timeZone = TimeZone(secondsFromGMT: weather.currentWeather.timezone)
             dateFormatter.timeStyle = .short
-            
             self.time = dateFormatter.string(from: Date())
         }
         
         self.weatherDescription = weather.currentWeather.id.weatherDescription()
         self.temp = weather.currentWeather.temp.tempString()
-
+        
         let daily = weather.forecast.daily[0]
         self.tempMaxMin = "최고:\(daily.tempMax.tempString()) 최저:\(daily.tempMin.tempString())"
     }

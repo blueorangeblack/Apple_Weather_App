@@ -177,9 +177,9 @@
 			isa = PBXGroup;
 			children = (
 				127392F227B4E9220023CDD9 /* Weather.swift */,
+				12A167B727BDDED700322C7D /* City.swift */,
 				127392EB27B4D2A40023CDD9 /* CurrentWeather.swift */,
 				127392ED27B4DCFF0023CDD9 /* Forecast.swift */,
-				12A167B727BDDED700322C7D /* City.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";

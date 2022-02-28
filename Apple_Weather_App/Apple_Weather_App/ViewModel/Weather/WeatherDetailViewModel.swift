@@ -8,7 +8,6 @@
 import UIKit
 
 struct WeatherDetailViewModel {
-    let currentWeather: CurrentWeather
     let backViewTrailingConstant: CGFloat
     let backViewLeadingConstant: CGFloat
     let title: String
@@ -16,7 +15,6 @@ struct WeatherDetailViewModel {
     let subDetail: String?
     
     init(currentWeather: CurrentWeather, index: Int, timezone: Int, tomorrowSunrise: Date, tomorrowSunset: Date) {
-        self.currentWeather = currentWeather
         if index % 2 == 0 {
             backViewTrailingConstant = -5
             backViewLeadingConstant = 0

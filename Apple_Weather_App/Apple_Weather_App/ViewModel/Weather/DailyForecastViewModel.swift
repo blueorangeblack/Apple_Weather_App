@@ -8,8 +8,6 @@
 import UIKit
 
 struct DailyForecastViewModel {
-    let dailyForecast: DailyForecast
-    
     let day: String
     let image: UIImage
     let pop: String
@@ -20,8 +18,6 @@ struct DailyForecastViewModel {
     let strokeColor: CGColor
     
     init(dailyForecast: DailyForecast, index: Int, timezone: Int, weeklyMinTemp weeklyMin: Int, weeklyMaxTemp weeklyMax: Int) {
-        self.dailyForecast = dailyForecast
-        
         if index == 0 {
             self.day = "오늘"
         } else {
@@ -47,7 +43,7 @@ struct DailyForecastViewModel {
         let weeklyRange = weeklyMax - weeklyMin
         
         self.dailyX1 = CGFloat((dailyMin - weeklyMin) * 100 / weeklyRange)
-
+        
         if dailyMax == weeklyMax {
             self.dailyX2 = 100
         } else {

@@ -9,9 +9,9 @@ import Foundation
 import MapKit
 
 struct SuggestionViewModel {
-    let completerResult: MKLocalSearchCompletion
+    let result: String
     
-    var result: String {
-        return "\(completerResult.title) \(completerResult.subtitle)"
+    init (completerResult: MKLocalSearchCompletion) {
+        self.result = "\(completerResult.title) \(completerResult.subtitle)"
     }
 }

@@ -8,16 +8,17 @@
 import Foundation
 
 struct CurrentWeatherViewModel {
-    let weather: Weather
+    let cityName: String
+    let temp: String
+    let weatherDescription: String
+    let tempMaxMin: String
     
-    var cityName: String { return weather.city.name }
-    
-    var temp: String { return weather.currentWeather.temp.tempString() }
-    
-    var weatherDescription: String { return weather.currentWeather.id.weatherDescription() }
-    
-    var tempMaxMin: String {
+    init(weather: Weather) {
+        self.cityName = weather.city.name
+        self.temp = weather.currentWeather.temp.tempString()
+        self.weatherDescription = weather.currentWeather.id.weatherDescription()
+        
         let daily = weather.forecast.daily[0]
-        return "최고:\(daily.tempMax.tempString())  최저:\(daily.tempMin.tempString())"
+        self.tempMaxMin = "최고:\(daily.tempMax.tempString())  최저:\(daily.tempMin.tempString())"
     }
 }
