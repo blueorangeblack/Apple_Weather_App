@@ -15,6 +15,7 @@ class MainViewController: UIViewController {
     private lazy var pageControl: UIPageControl = {
         let control = UIPageControl()
         control.currentPage = 0
+        control.backgroundStyle = .minimal
         control.addTarget(self, action: #selector(pageControlTapped), for: .valueChanged)
         return control
     }()
