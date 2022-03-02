@@ -4,8 +4,9 @@
 
 ## 개발 목표
 1. OpenWeather API를 사용하여 Apple Weather App과 비슷하게 만들기
-2. CollectionView Compositional Layout사용하기
-3. SwiftLint 이외에 다른 외부 라이브러리 사용하지 않기
+2. SwiftLint 이외에 다른 외부 라이브러리 사용하지 않기
+3. 스토리보드를 사용하지 않고 코드로 구현하기
+4. CollectionView Compositional Layout사용하기
 <br>
 
 ## Demo
@@ -23,12 +24,12 @@
 ## 설계 및 기능
 ### 1. MainViewController
 - 날씨 정보 (현재 날씨, 시간별 일기예보, 8일간의 일기예보, 날씨 세부 정보)
-<img width="856" src="https://user-images.githubusercontent.com/81162435/155971042-e0bcbf05-f2e3-47e4-97de-b38aa875dd2f.png">
+<img width="856" src="https://user-images.githubusercontent.com/81162435/156468265-0de9b57f-0b9f-40ec-af5a-89b6d4dc3d11.png">
 
 ### 2. CityWeatherListViewController
 - 추가한 도시 목록 보기 & 도시 검색 & 편집 & 삭제
-<img width="856" src="https://user-images.githubusercontent.com/81162435/155969796-e66f10c8-513a-4b2c-83bc-8f5aec3937fa.png">
-<img width="856" src="https://user-images.githubusercontent.com/81162435/155969929-d8c7ed43-b89d-4d7b-a50f-634be4f1c1b8.png">
+<img width="856" src="https://user-images.githubusercontent.com/81162435/156468082-3e4437e7-88c6-4609-b4bc-bb439575bac8.png">
+<img width="856" src="https://user-images.githubusercontent.com/81162435/156467666-c1bf4345-ce13-4e86-a006-112a777552c8.png">
 
 - 온도 단위 변환
 <img width="856" src="https://user-images.githubusercontent.com/81162435/155987958-0e18159d-d0ff-4d52-8825-2e3793aa884e.png">
