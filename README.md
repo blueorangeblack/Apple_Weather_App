@@ -27,9 +27,9 @@
 <img width="856" src="https://user-images.githubusercontent.com/81162435/156468265-0de9b57f-0b9f-40ec-af5a-89b6d4dc3d11.png">
 
 ### 2. CityWeatherListViewController
-- 추가한 도시 목록 보기 & 도시 검색 & 편집 & 삭제
-<img width="856" src="https://user-images.githubusercontent.com/81162435/156468082-3e4437e7-88c6-4609-b4bc-bb439575bac8.png">
-<img width="856" src="https://user-images.githubusercontent.com/81162435/156467666-c1bf4345-ce13-4e86-a006-112a777552c8.png">
+- 추가한 도시 목록 보기 & 도시 검색 & 편집
+<img width="856" src="https://user-images.githubusercontent.com/81162435/156479965-413acbc9-a853-435e-8801-da0bbc735a66.png">
+<img width="856" src="https://user-images.githubusercontent.com/81162435/156479978-b9c1fdbc-5570-4876-8f17-6bb7a5a99396.png">
 
 - 온도 단위 변환
 <img width="856" src="https://user-images.githubusercontent.com/81162435/155987958-0e18159d-d0ff-4d52-8825-2e3793aa884e.png">
