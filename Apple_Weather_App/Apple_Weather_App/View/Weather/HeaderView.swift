@@ -65,7 +65,6 @@ class HeaderView: UICollectionReusableView {
     func configure() {
         guard let viewModel = viewModel else { return }
         
-        backgroundColor = viewModel.weatherColor
         self.titleLabel.text = viewModel.title
     }
 }
